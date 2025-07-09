@@ -1,0 +1,103 @@
+# CodeWise 项目开发规则
+
+## 项目概述
+CodeWise是一个智能代码库检索与问答Agent，使用本地中文大语言模型和向量数据库技术。
+
+## 技术栈要求
+
+### 后端开发
+- 使用 Python 3.13.5 + FastAPI
+- 虚拟环境管理：miniconda (环境名: codewise)
+- 大语言模型：deepseek-coder-v2 (本地部署)
+- 向量数据库：chroma_db
+- 中文嵌入模型：BAAI/bge-m3
+- RAG框架：LlamaIndex
+
+### 前端开发
+- 使用 Vue 3 + Vite + TypeScript
+- UI组件库：Ant Design Vue
+- Node.js版本：20.19.3
+- 代码解析器：@babel, @vue/compiler-sfc, @vue/compiler-dom
+
+## 代码规范
+
+### Python后端规范
+- 使用 FastAPI 异步编程范式
+- 遵循 PEP 8 代码风格
+- 使用类型提示 (Type Hints)
+- API路由使用清晰的RESTful设计
+- 中文注释和文档字符串
+- 错误处理使用统一的异常处理机制
+
+### Vue前端规范
+- 使用 Composition API (setup语法糖)
+- 组件命名使用 PascalCase
+- 文件命名使用 kebab-case
+- 使用 TypeScript 进行类型定义
+- 组件props和emit使用类型声明
+- 中文注释和变量命名
+
+## 项目结构规则
+
+### 目录组织
+- `frontend/` - Vue 3前端代码，使用vite构建
+- `backend/` - Python FastAPI后端API服务
+- `ast/` - 源码编译为可分块文件的脚本  使用@babel, @vue/compiler-sfc, @vue/compiler-dom 解析源码
+- `models/` - 本地嵌入模型存储目录
+- `db/` - chroma_db向量数据库文件
+- `data/` - 文档、源码文件和处理后的JSON文件
+- `scripts/` - 部署和运维脚本
+
+### 文件命名约定
+- Python文件：使用snake_case
+- Vue组件：使用PascalCase.vue
+- TypeScript类型文件：使用camelCase.ts
+- 配置文件：使用kebab-case
+
+## 开发最佳实践
+
+### 环境管理
+- 始终在codewise虚拟环境中开发
+- 使用 `conda activate codewise` 激活环境
+- 依赖更新需要同步更新requirements.txt
+
+### 代码质量
+- 编写单元测试，特别是核心RAG功能
+- 使用中文注释解释业务逻辑
+- API接口需要提供中文文档
+- 向量搜索和嵌入相关代码需要详细注释
+
+### RAG相关开发
+- 向量化处理需要考虑中文分词特性
+- 代码检索结果需要保持上下文完整性
+- 问答生成要针对代码理解进行优化
+- 嵌入模型调用需要做好错误处理和重试机制
+
+### 性能优化
+- 向量搜索使用异步处理
+- 大文件解析采用流式处理
+- 前端组件使用懒加载
+- API响应实现分页和缓存
+
+## 特殊注意事项
+
+### 中文处理
+- 所有用户界面文本使用简体中文
+- 代码注释和文档使用中文
+- 搜索和问答功能要针对中文优化
+
+### 本地模型集成
+- deepseek-coder-v2模型调用需要做好资源管理
+- BAAI/bge-m3嵌入模型要缓存处理结果
+- 模型推理失败时要有降级方案
+
+### 安全性
+- API接口实现适当的访问控制
+- 代码解析要防止恶意代码执行
+- 向量数据库访问要做好权限控制
+
+## 调试和日志
+- 使用结构化日志记录关键操作
+- RAG检索过程要有详细的调试信息
+- 模型推理时间和性能指标需要监控
+- 前端错误要上报到后端日志系统 
