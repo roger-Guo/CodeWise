@@ -51,7 +51,8 @@ models/
 db/
 data/
 **/node_modules/
-
+**/output/
+**/vue-parse/
 
 # 临时文件
 temp/

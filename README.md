@@ -15,18 +15,25 @@ CodeWise 是一个基于本地大语言模型和代码知识图谱的智能代�
 为了实现上述目标，项目的核心是位于 `ast/` 目录下的代码解析器。
 
 ### 功能特性
-- **结构化内容提取**: 提取 Vue 组件中 `template`、`script` 等部分的源代码、注释和行号。
+- **结构化内容提取**: 提取 React 组件中的 JSX、函数组件、类组件、Hooks 等的源代码、注释和行号。
 - **依赖关系分析**: 通过AST精确解析 `import` 语句，构建文件间的依赖关系图。
 - **知识图谱构建**: 每个文件被视为一个图节点，输出包含其内容和依赖关系的结构化JSON。
+- **React特性支持**: 深度解析 React 组件、Hooks 调用、Props、State 等特性。
 
 ### 输出节点示例
 ```json
 {
-  "filePath": "/path/to/A.vue",
+  "filePath": "/path/to/UserProfile.jsx",
+  "components": [
+    { "name": "UserProfile", "type": "function", "isComponent": true }
+  ],
+  "hooks": [
+    { "name": "useState", "line": 7, "args": 1 }
+  ],
   "dependencies": [
     {
-      "source": "./B.vue",
-      "resolvedPath": "/path/to/B.vue"
+      "source": "./UserCard.jsx",
+      "resolvedPath": "/path/to/UserCard.jsx"
     }
   ]
 }
@@ -48,12 +55,12 @@ CodeWise 是一个基于本地大语言模型和代码知识图谱的智能代�
 ## 🛠️ 技术栈
 
 - **后端**: Python 3.13.5, FastAPI
-- **前端**: Vue 3, Vite, Ant Design Vue, TypeScript
+- **前端**: React 18, Vite, Ant Design React, TypeScript
 - **大语言模型**: deepseek-coder-v2
 - **向量数据库**: chroma_db
 - **嵌入模型**: BAAI/bge-m3
 - **RAG 框架**: LlamaIndex, **LangGraph (规划中)**
-- **代码解析**: `@babel/parser`, `@vue/compiler-sfc`, `@vue/compiler-dom`
+- **代码解析**: `@babel/parser`, `@babel/traverse`, `@babel/types`, `@babel/preset-react`
 - **python包管理器**: miniconda
 - **miniconda虚拟环境**: codewise
 - **nodejs版本**: 20.19.3
@@ -62,7 +69,7 @@ CodeWise 是一个基于本地大语言模型和代码知识图谱的智能代�
 
 ```
 CodeWise/
-├── frontend/          # Vue 3 前端 + vite + Ant Design Vue
+├── frontend/          # React 18 前端 + vite + Ant Design React
 ├── ast/               # 代码知识图谱解析器
 ├── backend/           # Python FastAPI 后端
 ├── models/            # 本地嵌入模型存储 

@@ -15,15 +15,16 @@ CodeWise是一个基于代码知识图谱的智能代码库检索与问答Agent�
 - **高级Agent框架：LangGraph (规划中)**
 
 ### 前端开发
-- 使用 Vue 3 + Vite + TypeScript
-- UI组件库：Ant Design Vue
+- 使用 React 18 + Vite + TypeScript
+- UI组件库：Ant Design React
 - Node.js版本：20.19.3
 
 ### 代码解析与知识图谱构建
-- 代码解析器：@babel/parser, @vue/compiler-sfc, @vue/compiler-dom
-- AST分析：精确提取import语句和依赖关系
+- 代码解析器：@babel/parser, @babel/traverse, @babel/types, @babel/preset-react
+- AST分析：精确提取import语句、React组件、Hooks、依赖关系
 - 路径解析：支持别名路径和相对路径解析
 - 图谱构建：文件作为节点，依赖关系作为边
+- React特性：深度解析JSX、函数组件、类组件、Hooks调用
 
 ## 代码规范
 
@@ -35,25 +36,27 @@ CodeWise是一个基于代码知识图谱的智能代码库检索与问答Agent�
 - 中文注释和文档字符串
 - 错误处理使用统一的异常处理机制
 
-### Vue前端规范
-- 使用 Composition API (setup语法糖)
+### React前端规范
+- 使用 React Hooks 和函数组件
 - 组件命名使用 PascalCase
-- 文件命名使用 kebab-case
+- 文件命名使用 PascalCase (.jsx/.tsx)
 - 使用 TypeScript 进行类型定义
-- 组件props和emit使用类型声明
+- 组件Props使用interface类型声明
+- useState、useEffect等Hooks规范使用
 - 中文注释和变量命名
 
 ### 代码解析器规范
 - 保持源代码和注释的完整性
 - 精确记录行号和位置信息
 - 依赖关系解析必须包含source、resolvedPath和imports信息
-- 支持Vue SFC、JavaScript、TypeScript文件解析
+- 支持React JSX/TSX、JavaScript、TypeScript文件解析
 - 路径解析支持项目别名配置(@/、../等)
+- React特性解析：组件、Hooks、Props、JSX结构
 
 ## 项目结构规则
 
 ### 目录组织
-- `frontend/` - Vue 3前端代码，使用vite构建
+- `frontend/` - React 18前端代码，使用vite构建
 - `backend/` - Python FastAPI后端API服务
 - `ast/` - **代码知识图谱解析器**，构建文件依赖关系图谱
 - `models/` - 本地嵌入模型存储目录
@@ -63,7 +66,7 @@ CodeWise是一个基于代码知识图谱的智能代码库检索与问答Agent�
 
 ### 文件命名约定
 - Python文件：使用snake_case
-- Vue组件：使用PascalCase.vue
+- React组件：使用PascalCase.jsx/.tsx
 - TypeScript类型文件：使用camelCase.ts
 - 配置文件：使用kebab-case
 - 知识图谱JSON文件：与源文件同名，后缀改为.json
