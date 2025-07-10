@@ -50,8 +50,10 @@ Thumbs.db
 models/
 db/
 data/
+**/node_modules/
 
 
 # 临时文件
+temp/
 *.tmp
 *.temp 

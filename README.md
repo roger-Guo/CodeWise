@@ -1,22 +1,72 @@
-# CodeWise 
+# CodeWise: 智能代码库检索与问答Agent
 
-## 智能代码库检索与问答Agent
+CodeWise 是一个基于本地大语言模型和代码知识图谱的智能代码理解与问答系统。它通过深度解析代码库，构建文件间的依赖关系图谱，为开发者提供精准、上下文完整的代码检索和问答体验。
 
-本地中文大语言模型 deepseek-coder-v2
-向量数据库 chroma_db
-中文嵌入模型 BAAI/bge-m3
-RAG 编排框架 LlamaIndex
-代码解析器 @babel,@vue/compiler-sfc,@vue/compiler-dom
-python版本 3.13.5
-python包管理器 miniconda
-miniconda虚拟环境 codewise
-nodejs版本 20.19.3
+## 🚀 项目愿景
 
+我们的目标是超越传统基于文本的搜索，构建一个能够真正“理解”代码库的AI Agent。通过结合**代码知识图谱**和**LangGraph**等高级框架，CodeWise能够：
+
+- **追踪复杂调用链**: 从一个函数出发，完整地追踪其在整个项目中的调用路径。
+- **理解跨文件逻辑**: 回答涉及多个文件协作才能完成的功能性问题。
+- **评估变更影响**: 在修改一个核心模块前，精确评估其对整个代码库的潜在影响。
+
+## 核心模块：`ast` 代码知识图谱解析器
+
+为了实现上述目标，项目的核心是位于 `ast/` 目录下的代码解析器。
+
+### 功能特性
+- **结构化内容提取**: 提取 Vue 组件中 `template`、`script` 等部分的源代码、注释和行号。
+- **依赖关系分析**: 通过AST精确解析 `import` 语句，构建文件间的依赖关系图。
+- **知识图谱构建**: 每个文件被视为一个图节点，输出包含其内容和依赖关系的结构化JSON。
+
+### 输出节点示例
+```json
+{
+  "filePath": "/path/to/A.vue",
+  "dependencies": [
+    {
+      "source": "./B.vue",
+      "resolvedPath": "/path/to/B.vue"
+    }
+  ]
+}
+```
+
+## 🤖 高级应用：结合 LangGraph 实现多文件联合分析
+
+生成的代码知识图谱是构建高级Agent的基础。我们计划使用 **LangGraph** 框架构建一个具备循环和推理能力的Agent，其工作流如下：
+
+1.  **启动 (Retrieve)**: 根据用户问题，向量检索找到最相关的**入口文件**。
+2.  **分析 (Analyze)**: 读取文件节点的JSON数据，提取代码、注释和**依赖关系**，将其加入全局上下文，并记录调用链。
+3.  **路由 (Router)**: 检查是否还有新的、相关的依赖需要分析。
+    -   **是**: 循环回到**分析**节点，处理下一个依赖文件。
+    -   **否**: 进入**生成答案**节点。
+4.  **生成 (Generate)**: 将包含完整调用链和多文件代码的上下文交给LLM，生成最终答案。
+
+通过这个工作流，Agent能够像经验丰富的开发者一样，在整个代码库的依赖关系中穿梭，从而真正“理解”代码。
+
+## 🛠️ 技术栈
+
+- **后端**: Python 3.13.5, FastAPI
+- **前端**: Vue 3, Vite, Ant Design Vue, TypeScript
+- **大语言模型**: deepseek-coder-v2
+- **向量数据库**: chroma_db
+- **嵌入模型**: BAAI/bge-m3
+- **RAG 框架**: LlamaIndex, **LangGraph (规划中)**
+- **代码解析**: `@babel/parser`, `@vue/compiler-sfc`, `@vue/compiler-dom`
+- **python包管理器**: miniconda
+- **miniconda虚拟环境**: codewise
+- **nodejs版本**: 20.19.3
+
+## 📁 项目结构
+
+```
 CodeWise/
 ├── frontend/          # Vue 3 前端 + vite + Ant Design Vue
-├── ast/               # 将源码编译成可分块文件的脚本
+├── ast/               # 代码知识图谱解析器
 ├── backend/           # Python FastAPI 后端
 ├── models/            # 本地嵌入模型存储 
 ├── db/                # 向量数据库 chroma_db
-├── data/              # 文档 需要处理的代码文件源文件以及代码处理后的JSON文件
+├── data/              # 源码及处理后的JSON文件
 └── scripts/           # 部署脚本
+```
