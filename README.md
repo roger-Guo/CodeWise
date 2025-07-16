@@ -12,30 +12,44 @@ CodeWise 是一个基于本地大语言模型和代码知识图谱的智能代�
 
 ## 核心模块：`parser` 代码知识图谱解析器
 
-为了实现上述目标，项目的核心是位于 `parser/` 目录下的代码解析器。
+为了实现上述目标，项目的核心是位于 `parser/` 目录下的代码解析器。它已升级为模块化设计，能够输出包含丰富上下文的结构化知识节点。
 
 ### 功能特性
-- **结构化内容提取**: 提取 React 组件中的 JSX、函数组件、类组件、Hooks 等的源代码、注释和行号。
-- **依赖关系分析**: 通过AST精确解析 `import` 语句，构建文件间的依赖关系图。
-- **知识图谱构建**: 每个文件被视为一个图节点，输出包含其内容和依赖关系的结构化JSON。
-- **React特性支持**: 深度解析 React 组件、Hooks 调用、Props、State 等特性。
+- **双向依赖图谱**: 精确解析`import`/`export`，构建**正向引用**（我依赖谁）和**反向引用**（谁依赖我）的双向依赖图，是影响分析和代码溯源的关键。
+- **深度代码结构分析**: 将文件解构为包含组件、函数、类的**一级定义列表**，同时通过**作用域路径**保留其逻辑层级关系。
+- **全面的元数据提取**: 不仅是代码，还包括 Git 版本、分支、最后修改时间等丰富的元数据。
+- **模块化JSON输出**: 输出结构清晰的模块化JSON，每个模块（如`fileMetadata`, `dependencyInfo`）职责单一，便于消费。
+- **React 特性深度解析**: 深度分析组件的 Props, State, Hooks，以及内部子组件定义。
 
 ### 输出节点示例
+每个文件被解析为一个知识图谱节点，其结构如下：
 ```json
 {
-  "filePath": "/path/to/UserProfile.jsx",
-  "components": [
-    { "name": "UserProfile", "type": "function", "isComponent": true }
-  ],
-  "hooks": [
-    { "name": "useState", "line": 7, "args": 1 }
-  ],
-  "dependencies": [
+  "fileMetadata": {
+    "filePath": "src/components/UserProfile.jsx",
+    "version": "a1b2c3d"
+  },
+  "fileDefinitions": [
     {
-      "source": "./UserCard.jsx",
-      "resolvedPath": "/path/to/UserCard.jsx"
+      "name": "UserProfile",
+      "definitionType": "component",
+      "scopePath": null,
+      "details": { "hooks": ["useState"], "props": [{ "name": "userId" }] }
+    },
+    {
+      "name": "loadUser",
+      "definitionType": "function",
+      "scopePath": "UserProfile"
     }
-  ]
+  ],
+  "dependencyInfo": {
+    "forwardReferences": [
+      { "function": "fetchFromApi", "source": "../api/user" }
+    ],
+    "backwardReferences": [
+      { "referencedBy": "src/pages/HomePage.jsx" }
+    ]
+  }
 }
 ```
 
@@ -44,7 +58,7 @@ CodeWise 是一个基于本地大语言模型和代码知识图谱的智能代�
 生成的代码知识图谱是构建高级Agent的基础。我们计划使用 **LangGraph** 框架构建一个具备循环和推理能力的Agent，其工作流如下：
 
 1.  **启动 (Retrieve)**: 根据用户问题，向量检索找到最相关的**入口文件**。
-2.  **分析 (Analyze)**: 读取文件节点的JSON数据，提取代码、注释和**依赖关系**，将其加入全局上下文，并记录调用链。
+2.  **分析 (Analyze)**: 读取文件节点的JSON数据。利用 `dependencyInfo` 中的**正向和反向引用**来扩展分析范围。通过 `forwardReferences` 找到需要继续追踪的文件，通过 `backwardReferences` 了解当前文件的调用上下文，并将信息聚合到全局上下文中。
 3.  **路由 (Router)**: 检查是否还有新的、相关的依赖需要分析。
     -   **是**: 循环回到**分析**节点，处理下一个依赖文件。
     -   **否**: 进入**生成答案**节点。
@@ -70,7 +84,7 @@ CodeWise 是一个基于本地大语言模型和代码知识图谱的智能代�
 ```
 CodeWise/
 ├── frontend/          # React 18 前端 + vite + Ant Design React
-├── parser/               # 代码知识图谱解析器
+├── parser/            # 代码知识图谱解析器
 ├── backend/           # Python FastAPI 后端
 ├── models/            # 本地嵌入模型存储 
 ├── db/                # 向量数据库 chroma_db
