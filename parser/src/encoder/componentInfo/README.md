@@ -42,6 +42,7 @@
 | `codeBlock` | `string` | 该模块的完整源码片段。 | `"const loadUserInfo = async () => {...}"` |
 | `description`| `string` \| `null`| 从注释中提取的功能描述。 | `"加载用户数据"` |
 | `exportInfo` | `object` | 导出信息，包含 `isExported` (boolean) 和 `type` (`default`\|`named`\|`null`)。 | `{"isExported": false, "type": null}` |
+| `usedImports` | `array` | 该函数使用的外部导入模块，包含source、imported、local、type、importLine等信息。 | `[{"source": "./utils", "imported": "helper", "local": "helper", "type": "named", "importLine": 2}]` |
 | `details` | `object` | 存储特定于类型的详细信息，如组件的`props`/`hooks`，函数的`params`/`returnType`等。 | `{ "isAsync": true, "params": [] }` |
 
 
@@ -80,6 +81,7 @@ export default function UserProfile() {
       "endLine": 4,
       "description": "这是一个顶层函数",
       "exportInfo": { "isExported": true, "type": "named" },
+      "usedImports": [],
       "details": { /* ... */ }
     },
     {
@@ -92,6 +94,15 @@ export default function UserProfile() {
       "endLine": 15,
       "description": "这是一个顶层组件",
       "exportInfo": { "isExported": true, "type": "default" },
+      "usedImports": [
+        {
+          "source": "react",
+          "imported": "useState",
+          "local": "useState",
+          "type": "named",
+          "importLine": 1
+        }
+      ],
       "details": { /* ... */ }
     },
     {
@@ -104,6 +115,7 @@ export default function UserProfile() {
       "endLine": 12,
       "description": "这是一个嵌套函数",
       "exportInfo": { "isExported": false, "type": null },
+      "usedImports": [],
       "details": { /* ... */ }
     }
   ]
