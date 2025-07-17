@@ -119,6 +119,9 @@ class ReactSimpleParser {
    * @param {string} content - 文件内容
    */
   extractFromAST(ast, result, lines, content = '') {
+    // 作用域栈，用于跟踪当前的嵌套层级
+    const scopeStack = []
+    
     // 提取注释
     if (this.options.preserveComments && ast.comments) {
       result.comments = ast.comments.map(comment => ({
@@ -187,21 +190,60 @@ class ReactSimpleParser {
       },
 
       // 提取函数组件
-      FunctionDeclaration: (path) => {
-        this.extractFunction(path.node, result, 'function', null, content, lines)
+      FunctionDeclaration: {
+        enter: (path) => {
+          const funcName = path.node.id ? path.node.id.name : 'anonymous'
+          const currentScope = scopeStack.length > 0 ? scopeStack.join('.') : null
+          
+          this.extractFunction(path.node, result, 'function', null, content, lines, currentScope)
+          
+          // 将当前函数推入作用域栈
+          scopeStack.push(funcName)
+        },
+        exit: (path) => {
+          // 退出时从作用域栈弹出
+          scopeStack.pop()
+        }
       },
 
-      ArrowFunctionExpression: (path) => {
-        // 检查是否是变量声明中的箭头函数组件
-        if (t.isVariableDeclarator(path.parent) && t.isIdentifier(path.parent.id)) {
-          this.extractFunction(path.node, result, 'arrow', path.parent.id.name, content, lines)
+      ArrowFunctionExpression: {
+        enter: (path) => {
+          // 检查是否是变量声明中的箭头函数组件
+          if (t.isVariableDeclarator(path.parent) && t.isIdentifier(path.parent.id)) {
+            const funcName = path.parent.id.name
+            const currentScope = scopeStack.length > 0 ? scopeStack.join('.') : null
+            
+            this.extractFunction(path.node, result, 'arrow', funcName, content, lines, currentScope)
+            
+            // 将当前函数推入作用域栈
+            scopeStack.push(funcName)
+          }
+        },
+        exit: (path) => {
+          // 退出时从作用域栈弹出
+          if (t.isVariableDeclarator(path.parent) && t.isIdentifier(path.parent.id)) {
+            scopeStack.pop()
+          }
         }
       },
 
       // 提取类组件
-      ClassDeclaration: (path) => {
-        if (this.isReactComponent(path.node)) {
-          this.extractClassComponent(path.node, result)
+      ClassDeclaration: {
+        enter: (path) => {
+          if (this.isReactComponent(path.node)) {
+            const className = path.node.id.name
+            const currentScope = scopeStack.length > 0 ? scopeStack.join('.') : null
+            
+            this.extractClassComponent(path.node, result, currentScope)
+            
+            // 将当前类推入作用域栈
+            scopeStack.push(className)
+          }
+        },
+        exit: (path) => {
+          if (this.isReactComponent(path.node)) {
+            scopeStack.pop()
+          }
         }
       },
 
@@ -245,14 +287,28 @@ class ReactSimpleParser {
   /**
    * 提取函数信息
    */
-  extractFunction(node, result, funcType, name = null, content = '', lines = []) {
+  extractFunction(node, result, funcType, name = null, content = '', lines = [], scopePath = null) {
+    const functionName = name || (node.id ? node.id.name : 'anonymous')
+    const fileName = result.fileName
+    
+    // 生成qualifiedName: [文件名]::[作用域路径].[名称]
+    let qualifiedName = `${fileName}::`
+    if (scopePath) {
+      qualifiedName += `${scopePath}.${functionName}`
+    } else {
+      qualifiedName += functionName
+    }
+    
     const functionInfo = {
       type: funcType,
-      name: name || (node.id ? node.id.name : 'anonymous'),
+      name: functionName,
       line: node.loc.start.line,
       endLine: node.loc.end.line,
       params: [],
-      isComponent: false
+      isComponent: false,
+      scopePath, // 作用域路径，顶层为null
+      isTopLevel: scopePath === null, // 是否为顶层函数
+      qualifiedName // 全局唯一限定名
     }
 
     // 提取函数的源代码文本
@@ -345,14 +401,28 @@ class ReactSimpleParser {
   /**
    * 提取类组件信息
    */
-  extractClassComponent(node, result) {
+  extractClassComponent(node, result, scopePath = null) {
+    const className = node.id.name
+    const fileName = result.fileName
+    
+    // 生成qualifiedName: [文件名]::[作用域路径].[名称]
+    let qualifiedName = `${fileName}::`
+    if (scopePath) {
+      qualifiedName += `${scopePath}.${className}`
+    } else {
+      qualifiedName += className
+    }
+    
     const componentInfo = {
       type: 'class',
-      name: node.id.name,
+      name: className,
       line: node.loc.start.line,
       endLine: node.loc.end.line,
       isComponent: true,
-      methods: []
+      methods: [],
+      scopePath, // 作用域路径，顶层为null
+      isTopLevel: scopePath === null, // 是否为顶层类
+      qualifiedName // 全局唯一限定名
     }
 
     // 提取类方法
