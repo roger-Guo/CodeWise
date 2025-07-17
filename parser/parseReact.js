@@ -9,6 +9,7 @@ import path from 'path'
 import { glob } from 'glob'
 import _ from 'lodash'
 import { analyzeUsedImports } from './src/encoder/dependencies/index.js'
+import { isReactComponent, returnsJSX, isLocalImport, resolveImportPath } from './utils/index.js'
 
 const { get } = _;
 /**
@@ -172,10 +173,10 @@ class ReactSimpleParser {
         result.imports.push(importInfo)
 
         // 添加到依赖关系
-        if (this.isLocalImport(importInfo.source)) {
+        if (isLocalImport(importInfo.source)) {
           result.dependencies.push({
             source: importInfo.source,
-            resolvedPath: this.resolveImportPath(importInfo.source, result.filePath),
+            resolvedPath: resolveImportPath(importInfo.source, result.filePath),
             imports: importInfo.specifiers
           })
         }
@@ -231,7 +232,7 @@ class ReactSimpleParser {
       // 提取类组件
       ClassDeclaration: {
         enter: (path) => {
-          if (this.isReactComponent(path.node)) {
+          if (isReactComponent(path.node)) {
             const className = path.node.id.name
             const currentScope = scopeStack.length > 0 ? scopeStack.join('.') : null
             
@@ -242,7 +243,7 @@ class ReactSimpleParser {
           }
         },
         exit: (path) => {
-          if (this.isReactComponent(path.node)) {
+          if (isReactComponent(path.node)) {
             scopeStack.pop()
           }
         }
@@ -340,7 +341,7 @@ class ReactSimpleParser {
 
     // 判断是否是React组件（首字母大写且返回JSX）
     if (functionInfo.name[0] === functionInfo.name[0].toUpperCase()) {
-      functionInfo.isComponent = this.returnsJSX(node)
+      functionInfo.isComponent = returnsJSX(node)
       if (functionInfo.isComponent) {
         result.components.push(functionInfo)
       }
@@ -442,58 +443,6 @@ class ReactSimpleParser {
     }
 
     result.components.push(componentInfo)
-  }
-
-  /**
-   * 判断是否是React组件类
-   */
-  isReactComponent(node) {
-    if (!node.superClass) return false
-    
-    if (t.isIdentifier(node.superClass)) {
-      return node.superClass.name === 'Component' || node.superClass.name === 'PureComponent'
-    }
-    
-    if (t.isMemberExpression(node.superClass)) {
-      return t.isIdentifier(node.superClass.object) && 
-             node.superClass.object.name === 'React' &&
-             t.isIdentifier(node.superClass.property) &&
-             (node.superClass.property.name === 'Component' || 
-              node.superClass.property.name === 'PureComponent')
-    }
-    
-    return false
-  }
-
-  /**
-   * 判断函数是否返回JSX (简化版本)
-   */
-  returnsJSX(node) {
-    // 简化的JSX检测：检查函数体中是否包含JSX相关的代码模式
-    const nodeStr = JSON.stringify(node)
-    return nodeStr.includes('JSXElement') || 
-           nodeStr.includes('JSXFragment') ||
-           nodeStr.includes('JSXText')
-  }
-
-  /**
-   * 判断是否是本地导入（相对路径）
-   */
-  isLocalImport(source) {
-    return source.startsWith('./') || source.startsWith('../') || source.startsWith('@/')
-  }
-
-  /**
-   * 解析导入路径
-   */
-  resolveImportPath(source, currentFilePath) {
-    if (source.startsWith('./') || source.startsWith('../')) {
-      return path.resolve(path.dirname(currentFilePath), source)
-    } else if (source.startsWith('@/')) {
-      // 处理别名路径，这里假设@指向项目根目录的src
-      return source.replace('@/', 'src/')
-    }
-    return source
   }
 
   /**
@@ -682,7 +631,7 @@ class ReactSimpleParser {
       // 定义信息
       definitionInfo: {
         // 注释信息
-        comments: this.getRelatedComments(result.comments, definition),
+        comments: definition.associatedComments || [],
         name: definition.name,
         qualifiedName: `${result.fileName}::${definition.scopePath ? definition.scopePath + '.' : ''}${definition.name}`,
         definitionType: type,
@@ -707,18 +656,6 @@ class ReactSimpleParser {
     }
 
     return baseData
-  }
-
-  /**
-   * 获取与定义相关的注释
-   */
-  getRelatedComments(allComments, definition) {
-    if (!allComments || !definition.startLine) return []
-    
-    return allComments.filter(comment => {
-      // 查找定义前面的注释（通常在定义前1-3行）
-      return comment.line >= (definition.startLine - 3) && comment.line <= definition.startLine
-    })
   }
 
   /**
