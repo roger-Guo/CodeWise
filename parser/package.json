@@ -1,0 +1,29 @@
+{
+  "name": "codewise-ast-parser",
+  "version": "1.0.0",
+  "description": "React项目AST解析工具，用于CodeWise智能代码库检索",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "parse": "node parseReact.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.23.0",
+    "@babel/preset-react": "^7.23.0",
+    "@babel/traverse": "^7.23.0",
+    "@babel/types": "^7.23.0",
+    "fs-extra": "^11.2.0",
+    "path": "^0.12.7",
+    "glob": "^10.3.0"
+  },
+  "keywords": [
+    "react",
+    "jsx",
+    "ast",
+    "parser",
+    "code-analysis"
+  ],
+  "author": "CodeWise",
+  "license": "MIT"
+} 

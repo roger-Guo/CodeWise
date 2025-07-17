@@ -30,12 +30,7 @@
 | :--- | :--- | :--- | :--- |
 | `platform` | `string` | 目标平台: `h5`, `miniprogram`, `app`。 | `"h5"` |
 | `path` | `string` | 路由的路径模式。 | `"/user/profile/:userId"` |
-| `isIndex` | `boolean` | 是否为索引路由（如 `index={true}`）。 | `false` |
-| `isLayout` | `boolean` | 是否为布局路由（即包含子路由）。 | `false` |
 | `parameters` | `object[]` | 从路径中提取的动态参数列表。 | `[{ name: "userId", type: "string" }]`|
-| `fullUrlPattern`| `string \| null`| (可选) 完整 URL 模式的示例。 | `"https://app.codewise.com/user/:userId"` |
-| `definitionFile`| `string` | 定义此条路由规则的文件路径。 | `"src/router.jsx"` |
-| `definitionLine`| `number` | 定义此条路由规则的行号。 | `25` |
 
 ## 4. 数据收集策略
 

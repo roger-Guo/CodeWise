@@ -36,7 +36,6 @@
 | `imported` / `function`| `string` / `string[]`| 具体依赖的函数/组件/变量名。 | `"fetchUserInfo"` |
 | `context` | `string \| null`| 此依赖关系发生在哪个函数或组件的上下文中。 | `"loadUserInfo"` |
 | `line` | `number` | 依赖关系在当前文件中的行号。 | `29` |
-| `isAsync` | `boolean` | (可选) 是否为异步调用。 | `true` |
 | `isExternal` | `boolean` | (可选) 是否为外部依赖 (npm包)。 | `false` |
 
 ### `BackwardReference` 对象 (谁依赖我)
