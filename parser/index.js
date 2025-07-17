@@ -89,7 +89,6 @@ function showHelp() {
     "imports": [{"source": "./Component", "specifiers": [...]}],
     "exports": [{"type": "default", "name": "MyComponent"}],
     "components": [{"name": "MyComponent", "type": "function", "isComponent": true}],
-    "hooks": [{"name": "useState", "line": 5, "args": 1}],
     "functions": [{"name": "handleClick", "type": "arrow", "line": 10}],
     "comments": [{"content": "注释内容", "line": 3, "type": "CommentLine"}],
     "dependencies": [{"source": "./utils", "resolvedPath": "src/utils.js"}]
@@ -166,9 +165,6 @@ async function main() {
       
       // 统计组件
       totalComponents += result.components?.length || 0
-      
-      // 统计Hooks
-      totalHooks += result.hooks?.length || 0
       
       // 统计函数
       totalFunctions += result.functions?.length || 0

@@ -86,7 +86,6 @@ class ReactSimpleParser {
         imports: [],
         exports: [],
         components: [],
-        hooks: [],
         functions: [],
         comments: [],
         dependencies: []
@@ -106,7 +105,6 @@ class ReactSimpleParser {
         imports: [],
         exports: [],
         components: [],
-        hooks: [],
         functions: [],
         comments: [],
         dependencies: []
@@ -249,11 +247,6 @@ class ReactSimpleParser {
           }
         }
       },
-
-      // 提取Hook调用
-      CallExpression: (path) => {
-        this.extractHookUsage(path.node, result)
-      }
     })
   }
 
@@ -300,14 +293,18 @@ class ReactSimpleParser {
     const functionInfo = {
       type: funcType,
       name: functionName,
-      line: node.loc.start.line,
+      startLine: node.loc.start.line,
       endLine: node.loc.end.line,
       params: [],
       isComponent: false,
       scopePath, // 作用域路径，顶层为null
       isTopLevel: scopePath === null, // 是否为顶层函数
       qualifiedName, // 全局唯一限定名
-      usedImports: [] // 该函数使用的外部导入模块
+      usedImports: [], // 该函数使用的外部导入模块
+      isAsync: node.async || false,
+      isExported: false,
+      exportType: null,
+      calls: [] // 函数调用信息
     }
 
     // 提取函数的源代码文本
@@ -418,13 +415,17 @@ class ReactSimpleParser {
     const componentInfo = {
       type: 'class',
       name: className,
-      line: node.loc.start.line,
+      startLine: node.loc.start.line,
       endLine: node.loc.end.line,
       isComponent: true,
       methods: [],
       scopePath, // 作用域路径，顶层为null
       isTopLevel: scopePath === null, // 是否为顶层类
-      qualifiedName // 全局唯一限定名
+      qualifiedName, // 全局唯一限定名
+      jsx: [],
+      isExported: false,
+      exportType: null,
+      codeBlock: '' // 需要在后面填充
     }
 
     // 提取类方法
@@ -441,20 +442,6 @@ class ReactSimpleParser {
     }
 
     result.components.push(componentInfo)
-  }
-
-  /**
-   * 提取Hook使用信息
-   */
-  extractHookUsage(node, result) {
-    if (t.isIdentifier(node.callee) && node.callee.name.startsWith('use')) {
-      const hookInfo = {
-        name: node.callee.name,
-        line: node.loc.start.line,
-        args: node.arguments.length
-      }
-      result.hooks.push(hookInfo)
-    }
   }
 
   /**
@@ -539,46 +526,235 @@ class ReactSimpleParser {
   }
 
   /**
-   * 保存单个文件的解析结果
-   * @param {Object} result - 单个文件的解析结果
+   * 保存解析结果 - 分离式输出
+   * @param {Object} result - 解析结果
    * @param {string} outputDir - 输出目录
    */
-  async saveSingleResult(result, outputDir) {
+  async saveResults(result, outputDir) {
     try {
       await fs.ensureDir(outputDir)
-      const ext = path.extname(result.fileName)
-      const baseName = path.basename(result.fileName, ext)
-      const outputFileName = `${baseName}.json`
-      const outputPath = path.join(outputDir, outputFileName)
-      await fs.writeJSON(outputPath, result, { spaces: 2 })
-      console.log(`解析结果已保存到: ${outputPath}`)
+      console.log('outputDir', outputDir)
+      
+      // 为文件创建基础目录
+      const fileName = path.basename(result.filePath, path.extname(result.filePath))
+      const fileOutputDir = path.join(outputDir, fileName)
+      await fs.ensureDir(fileOutputDir)
+      
+      // 创建文件目录
+      const outputFileName = path.join(fileOutputDir, fileName + '.json')
+      await fs.ensureFile(outputFileName)
+      await fs.writeJSON(outputFileName, result, { spaces: 2 })
+      
+      // 创建两级目录结构
+      const topLevelDir = path.join(fileOutputDir, 'top-level')
+      const nestedDir = path.join(fileOutputDir, 'nested')
+      await fs.ensureDir(topLevelDir)
+      await fs.ensureDir(nestedDir)
+      
+      // 分别处理顶层和嵌套定义
+      await this.saveTopLevelDefinitions(result, topLevelDir)
+      await this.saveNestedDefinitions(result, nestedDir)
+      
+      console.log(`文件 ${result.fileName} 的解析结果已保存到: ${fileOutputDir}`)
     } catch (error) {
-      console.error('保存单个结果失败:', error)
+      console.error('保存结果失败:', error)
     }
   }
 
   /**
-   * 保存所有解析结果，每个文件一个JSON
-   * @param {Array} results - 解析结果数组
+   * 保存顶层定义
+   * @param {Object} result - 解析结果
    * @param {string} outputDir - 输出目录
    */
-  async saveResults(results, outputDir) {
-    try {
-      await fs.ensureDir(outputDir)
-      
-      for (const result of results) {
-        const ext = path.extname(result.fileName)
-        const baseName = path.basename(result.fileName, ext)
-        const outputFileName = `${baseName}.json`
-        const outputPath = path.join(outputDir, outputFileName)
-        await fs.writeJSON(outputPath, result, { spaces: 2 })
+  async saveTopLevelDefinitions(result, outputDir) {
+    // 保存顶层组件
+    for (const component of result.components) {
+      if (component.isTopLevel) {
+        const componentData = this.createDefinitionJson(result, component, 'component')
+        await fs.writeJSON(
+          path.join(outputDir, `${component.name}_component.json`),
+          componentData,
+          { spaces: 2 }
+        )
       }
-      
-      console.log(`所有解析结果已保存到目录: ${outputDir}`)
-      console.log(`共保存 ${results.length} 个JSON文件`)
-    } catch (error) {
-      console.error('保存结果失败:', error)
     }
+
+    // 保存顶层函数
+    for (const func of result.functions) {
+      if (func.isTopLevel) {
+        const functionData = this.createDefinitionJson(result, func, 'function')
+        await fs.writeJSON(
+          path.join(outputDir, `${func.name}_function.json`),
+          functionData,
+          { spaces: 2 }
+        )
+      }
+    }
+
+    // 保存顶层导出变量
+    for (const exp of result.exports) {
+      if (exp.type === 'variable' && exp.isTopLevel) {
+        const variableData = this.createDefinitionJson(result, exp, 'variable')
+        await fs.writeJSON(
+          path.join(outputDir, `${exp.name}_variable.json`),
+          variableData,
+          { spaces: 2 }
+        )
+      }
+    }
+
+    // 保存顶层类
+    const topLevelClasses = result.components.filter(comp => comp.type === 'class' && comp.isTopLevel)
+    for (const cls of topLevelClasses) {
+      const classData = this.createDefinitionJson(result, cls, 'class')
+      await fs.writeJSON(
+        path.join(outputDir, `${cls.name}_class.json`),
+        classData,
+        { spaces: 2 }
+      )
+    }
+  }
+
+  /**
+   * 保存嵌套定义
+   * @param {Object} result - 解析结果
+   * @param {string} outputDir - 输出目录
+   */
+  async saveNestedDefinitions(result, outputDir) {
+    // 保存嵌套组件
+    for (const component of result.components) {
+      if (!component.isTopLevel) {
+        const componentData = this.createDefinitionJson(result, component, 'component')
+        await fs.writeJSON(
+          path.join(outputDir, `${component.scopePath}_${component.name}_component.json`),
+          componentData,
+          { spaces: 2 }
+        )
+      }
+    }
+
+    // 保存嵌套函数
+    for (const func of result.functions) {
+      if (!func.isTopLevel) {
+        const functionData = this.createDefinitionJson(result, func, 'function')
+        await fs.writeJSON(
+          path.join(outputDir, `${func.scopePath}_${func.name}_function.json`),
+          functionData,
+          { spaces: 2 }
+        )
+      }
+    }
+
+    // 保存嵌套变量
+    for (const exp of result.exports) {
+      if (exp.type === 'variable' && !exp.isTopLevel) {
+        const variableData = this.createDefinitionJson(result, exp, 'variable')
+        await fs.writeJSON(
+          path.join(outputDir, `${exp.scopePath}_${exp.name}_variable.json`),
+          variableData,
+          { spaces: 2 }
+        )
+      }
+    }
+  }
+
+  /**
+   * 创建单个定义的JSON数据
+   * @param {Object} result - 完整的解析结果
+   * @param {Object} definition - 单个定义对象
+   * @param {string} type - 定义类型
+   * @returns {Object} 格式化的JSON数据
+   */
+  createDefinitionJson(result, definition, type) {
+    const baseData = {
+      // 文件元数据
+      fileMetadata: {
+        filePath: result.filePath,
+        fileName: result.fileName,
+        fileType: result.fileType,
+        isJSX: result.isJSX,
+        totalLines: result.totalLines,
+        repositoryName: "CodeWise", // 可以从git信息获取
+        version: "current", // 可以从git信息获取
+        branch: "main" // 可以从git信息获取
+      },
+
+      // 定义信息
+      definitionInfo: {
+        // 注释信息
+        comments: this.getRelatedComments(result.comments, definition),
+        name: definition.name,
+        qualifiedName: `${result.fileName}::${definition.scopePath ? definition.scopePath + '.' : ''}${definition.name}`,
+        definitionType: type,
+        scopePath: definition.scopePath,
+        isTopLevel: definition.isTopLevel || false,
+        startLine: definition.startLine,
+        endLine: definition.endLine,
+        codeBlock: definition.codeBlock || '',
+        description: definition.description || null,
+        exportInfo: {
+          isExported: definition.isExported || false,
+          type: definition.exportType || null
+        }
+      },
+
+      // 依赖信息
+      dependencyInfo: {
+        forwardReferences: this.getForwardReferences(definition),
+        backwardReferences: [], // 需要全局分析才能获得
+        usedImports: definition.usedImports || []
+      }
+    }
+
+    return baseData
+  }
+
+  /**
+   * 获取与定义相关的注释
+   */
+  getRelatedComments(allComments, definition) {
+    if (!allComments || !definition.startLine) return []
+    
+    return allComments.filter(comment => {
+      // 查找定义前面的注释（通常在定义前1-3行）
+      return comment.line >= (definition.startLine - 3) && comment.line <= definition.startLine
+    })
+  }
+
+  /**
+   * 获取前向引用（该定义依赖的其他模块）
+   */
+  getForwardReferences(definition) {
+    const references = []
+    
+    // 从imports中查找该定义使用的导入
+    if (definition.usedImports) {
+      definition.usedImports.forEach(imp => {
+        references.push({
+          type: 'import',
+          source: imp.source,
+          imported: imp.imported,
+          resolvedPath: imp.resolvedPath || imp.source,
+          line: imp.importLine
+        })
+      })
+    }
+
+    // 如果是组件，添加JSX元素引用
+    if (definition.type === 'component' && definition.jsx) {
+      definition.jsx.forEach(element => {
+        if (element.type === 'component') {
+          references.push({
+            type: 'jsx_element',
+            component: element.name,
+            source: 'local', // 需要进一步分析来确定是否是导入的
+            line: element.line
+          })
+        }
+      })
+    }
+
+    return references
   }
 
   /**

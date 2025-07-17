@@ -43,7 +43,7 @@
 | `description`| `string` \| `null`| 从注释中提取的功能描述。 | `"加载用户数据"` |
 | `exportInfo` | `object` | 导出信息，包含 `isExported` (boolean) 和 `type` (`default`\|`named`\|`null`)。 | `{"isExported": false, "type": null}` |
 | `usedImports` | `array` | 该函数使用的外部导入模块，包含source、imported、local、type、importLine等信息。 | `[{"source": "./utils", "imported": "helper", "local": "helper", "type": "named", "importLine": 2}]` |
-| `details` | `object` | 存储特定于类型的详细信息，如组件的`props`/`hooks`，函数的`params`/`returnType`等。 | `{ "isAsync": true, "params": [] }` |
+| `details` | `object` | 存储特定于类型的详细信息，如函数的`params`/`returnType`等。 | `{ "isAsync": true, "params": [] }` |
 
 
 ## 4. 完整示例

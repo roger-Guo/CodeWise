@@ -21,16 +21,15 @@ async function runTests() {
   const result1 = await parser.parseReactFile('./test-files/FunctionComponent.jsx')
   // console.log('解析结果:', JSON.stringify(result1, null, 2))
   
-  // 保存解析结果到 JSON 文件
+  // 使用新的分离式输出保存解析结果
   const outputDir = './output'
-  const outputFile = path.join(outputDir, 'FunctionComponent.json')
   
   // 确保输出目录存在
   await fs.ensureDir(outputDir)
   
-  // 保存解析结果
-  await fs.writeJson(outputFile, result1, { spaces: 2 })
-  console.log(`✅ 解析结果已保存到: ${outputFile}`)
+  // 使用新的分离式保存方法
+  await parser.saveResults(result1, outputDir)
+  console.log(`✅ 解析结果已分离保存到: ${outputDir}`)
   
   
   // console.log('\n=== 测试2: 类组件解析 ===')
