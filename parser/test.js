@@ -19,7 +19,7 @@ async function runTests() {
   // 测试单个文件解析
   console.log('=== 测试1: 函数组件解析 ===')
   const result1 = await parser.parseReactFile('./test-files/FunctionComponent.jsx')
-  console.log('解析结果:', JSON.stringify(result1, null, 2))
+  // console.log('解析结果:', JSON.stringify(result1, null, 2))
   
   // 保存解析结果到 JSON 文件
   const outputDir = './output'

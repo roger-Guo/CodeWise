@@ -7,8 +7,10 @@ const traverseAST = traverse.default || traverse
 import fs from 'fs-extra'
 import path from 'path'
 import { glob } from 'glob'
+import _ from 'lodash'
 import { analyzeUsedImports } from './src/encoder/dependencies/index.js'
 
+const { get } = _;
 /**
  * React文件简化解析器
  * 输出包含源代码、注释和行数的JSON格式
@@ -263,7 +265,6 @@ class ReactSimpleParser {
       type,
       line: node.loc.start.line
     }
-
     if (type === 'default') {
       if (t.isIdentifier(node.declaration)) {
         exportInfo.name = node.declaration.name
@@ -271,14 +272,10 @@ class ReactSimpleParser {
         exportInfo.name = node.declaration.id ? node.declaration.id.name : 'anonymous'
       }
     } else if (type === 'named') {
-      exportInfo.specifiers = []
-      if (node.specifiers) {
-        node.specifiers.forEach(spec => {
-          exportInfo.specifiers.push({
-            local: spec.local.name,
-            exported: spec.exported.name
-          })
-        })
+      const name = get(node, 'declaration.declarations[0].id.name')
+      exportInfo.name = name;
+      if (!name) {
+        console.log('ExportNamedNotFound##### ', node);
       }
     }
 
