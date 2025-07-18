@@ -55,6 +55,7 @@ data/
 **/vue-parse/
 **/source-projects/
 **/test-files/
+**/output-backward-refs/
 
 # 临时文件
 temp/

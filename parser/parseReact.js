@@ -492,7 +492,7 @@ class ReactSimpleParser {
       // 查找所有符合条件的文件
       const files = await glob(pattern, { 
         cwd: projectPath,
-        ignore: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**']
+        ignore: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**', '**/styles.ts']
       })
       
       console.log(`📋 找到 ${files.length} 个文件需要解析`)
