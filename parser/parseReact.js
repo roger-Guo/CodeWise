@@ -79,6 +79,7 @@ class ReactSimpleParser {
 
       const result = {
         filePath,
+        chunkId: filePath,
         fileName: path.basename(filePath),
         fileType: isTypeScript ? 'typescript' : 'javascript',
         isJSX,
@@ -748,9 +749,11 @@ class ReactSimpleParser {
    * @returns {Object} 格式化的JSON数据
    */
   createDefinitionJson(result, definition, type) {
+    const qualifiedName = `${result.fileName}::${definition.scopePath ? definition.scopePath + '.' : ''}${definition.name}`;
     const baseData = {
       // 文件元数据
       fileMetadata: {
+        chunkId: `${result.filePath}::${qualifiedName.split('::')[1]}`,
         filePath: result.filePath,
         fileName: result.fileName,
         fileType: result.fileType,
@@ -766,7 +769,7 @@ class ReactSimpleParser {
         // 注释信息
         comments: definition.associatedComments || [],
         name: definition.name,
-        qualifiedName: `${result.fileName}::${definition.scopePath ? definition.scopePath + '.' : ''}${definition.name}`,
+        qualifiedName,
         definitionType: type,
         scopePath: definition.scopePath,
         isTopLevel: definition.isTopLevel || false,
