@@ -38,21 +38,35 @@ node project-parser.js --pattern "src/**/*.{jsx,tsx}"
 ```
 output/
 ├── project-summary.json          # 项目汇总信息
-├── FunctionComponent/
+├── FunctionComponent/            # 根目录文件
 │   ├── FunctionComponent.json    # 完整文件信息
 │   ├── top-level/               # 顶层定义
 │   │   ├── UserProfile_component.json
-│   │   ├── sayHi_function.json
-│   │   └── CONFIG_variable.json
+│   │   └── sayHi_function.json
 │   └── nested/                  # 嵌套定义
 │       └── UserProfile_handleClick_function.json
-├── ClassComponent/
-│   ├── ClassComponent.json
-│   ├── top-level/
-│   │   ├── UserManagement_component.json
-│   │   └── sayHello_function.json
-│   └── nested/
-└── utils/
+├── src/                         # 保持原始路径结构
+│   ├── components/
+│   │   └── index/               # src/components/index.ts
+│   │       ├── index.json
+│   │       ├── top-level/
+│   │       │   ├── ComponentIndex_component.json
+│   │       │   └── ComponentIndex_function.json
+│   │       └── nested/
+│   ├── pages/
+│   │   └── index/               # src/pages/index.ts
+│   │       ├── index.json
+│   │       ├── top-level/
+│   │       │   ├── PageIndex_component.json
+│   │       │   └── PageIndex_function.json
+│   │       └── nested/
+│   └── utils/
+│       └── index/               # src/utils/index.ts
+│           ├── index.json
+│           ├── top-level/
+│           │   └── utilFunction_function.json
+│           └── nested/
+└── utils/                       # 根目录文件
     ├── utils.json
     ├── top-level/
     │   └── sayGoodbye_function.json
@@ -199,6 +213,45 @@ node project-parser.js ./my-project -o ./analysis-results
 - 前向引用（该定义依赖的其他模块）
 - 后向引用（依赖该定义的其他模块）
 - 使用的导入模块
+
+## 🔄 路径保持功能
+
+### 问题解决
+- ✅ **同名文件冲突**: 不同目录下的同名文件（如多个 `index.ts`）现在会保持各自的路径结构
+- ✅ **路径映射**: 输出目录会完整保持原始项目的目录结构
+- ✅ **唯一性保证**: 每个文件都有唯一的输出路径，避免覆盖
+
+### 示例对比
+
+**修改前（会覆盖）:**
+```
+output/
+├── index/           # 所有index.ts文件都输出到这里
+│   ├── index.json
+│   ├── top-level/
+│   └── nested/
+```
+
+**修改后（保持路径）:**
+```
+output/
+├── src/
+│   ├── components/
+│   │   └── index/   # src/components/index.ts
+│   │       ├── index.json
+│   │       ├── top-level/
+│   │       └── nested/
+│   ├── pages/
+│   │   └── index/   # src/pages/index.ts
+│   │       ├── index.json
+│   │       ├── top-level/
+│   │       └── nested/
+│   └── utils/
+│       └── index/   # src/utils/index.ts
+│           ├── index.json
+│           ├── top-level/
+│           └── nested/
+```
 
 ## 🔍 故障排除
 

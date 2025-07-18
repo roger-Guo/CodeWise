@@ -519,7 +519,7 @@ class ReactSimpleParser {
             successCount++
             
             // 保存分离式输出
-            await this.saveResults(result, outputDir)
+            await this.saveResults(result, outputDir, projectPath)
             results.push(result)
           }
         } catch (error) {
@@ -601,15 +601,25 @@ class ReactSimpleParser {
    * 保存解析结果 - 分离式输出
    * @param {Object} result - 解析结果
    * @param {string} outputDir - 输出目录
+   * @param {string} projectPath - 项目根路径（可选）
    */
-  async saveResults(result, outputDir) {
+  async saveResults(result, outputDir, projectPath = null) {
     try {
       await fs.ensureDir(outputDir)
       console.log('outputDir', outputDir)
       
-      // 为文件创建基础目录
+      // 计算相对路径，保持原始文件结构
+      let relativePath = result.filePath
+      if (projectPath) {
+        relativePath = path.relative(projectPath, result.filePath)
+      }
+      
+      // 获取文件名（不含扩展名）和目录路径
       const fileName = path.basename(result.filePath, path.extname(result.filePath))
-      const fileOutputDir = path.join(outputDir, fileName)
+      const dirPath = path.dirname(relativePath)
+      
+      // 创建保持原始路径结构的输出目录
+      const fileOutputDir = path.join(outputDir, dirPath, fileName)
       await fs.ensureDir(fileOutputDir)
       
       // 创建文件目录

@@ -21,13 +21,13 @@ CodeWise 解析器采用**两级分离式输出架构**，将每个源文件的�
 
 ```
 output/
-└── [文件名]/
-    ├── top-level/           # 顶层定义
+└── [相对路径]/[文件名]/          # 保持原始项目路径结构
+    ├── top-level/               # 顶层定义
     │   ├── [名称]_component.json
     │   ├── [名称]_function.json
     │   ├── [名称]_class.json
     │   └── [名称]_variable.json
-    └── nested/              # 嵌套定义
+    └── nested/                  # 嵌套定义
         ├── [作用域]_[名称]_component.json
         ├── [作用域]_[名称]_function.json
         ├── [作用域]_[名称]_class.json
@@ -37,16 +37,41 @@ output/
 ### 实际示例
 ```
 output/
-└── FunctionComponent/
+├── FunctionComponent/            # 根目录文件
+│   ├── top-level/
+│   │   ├── UserProfile_component.json      # 顶层组件
+│   │   └── sayHi_function.json            # 顶层导出函数
+│   └── nested/
+│       └── UserProfile_handleClick_function.json  # 组件内嵌套函数
+├── src/                         # 保持原始路径结构
+│   ├── components/
+│   │   └── index/               # src/components/index.ts
+│   │       ├── top-level/
+│   │       │   ├── ComponentIndex_component.json
+│   │       │   └── ComponentIndex_function.json
+│   │       └── nested/
+│   ├── pages/
+│   │   └── index/               # src/pages/index.ts
+│   │       ├── top-level/
+│   │       │   ├── PageIndex_component.json
+│   │       │   └── PageIndex_function.json
+│   │       └── nested/
+│   └── utils/
+│       └── index/               # src/utils/index.ts
+│           ├── top-level/
+│           │   └── utilFunction_function.json
+│           └── nested/
+└── utils/                       # 根目录文件
     ├── top-level/
-    │   ├── UserProfile_component.json      # 顶层组件
-    │   ├── sayHi_function.json            # 顶层导出函数
-    │   └── CONFIG_variable.json           # 顶层导出变量
+    │   └── sayGoodbye_function.json
     └── nested/
-        ├── UserProfile_handleClick_function.json  # 组件内嵌套函数
-        ├── UserProfile_LoadingState_component.json # 组件内嵌套组件
-        └── UserProfile_useUserData_function.json   # 组件内自定义Hook
 ```
+
+### 路径保持优势
+
+- **避免同名文件覆盖**: 不同目录下的同名文件（如多个 `index.ts`）会保持各自的路径结构
+- **完整路径映射**: 输出目录完整保持原始项目的目录结构
+- **唯一性保证**: 每个文件都有唯一的输出路径，确保不会相互覆盖
 
 ## 4. JSON 文件格式
 
