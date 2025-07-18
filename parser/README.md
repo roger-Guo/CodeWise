@@ -34,6 +34,80 @@ node index.js ./src --output ./output --summary project-graph.json
 
 # 使用两级分离式输出模式（推荐）
 node test.js  # 自动为每个定义生成独立的JSON文件
+
+# 批量处理整个项目文件夹
+node test.js  # 处理 test-files 目录下的所有 JSX/TSX/JS/TS 文件
+
+# 使用CLI工具批量处理项目（推荐）
+node project-parser.js                                    # 解析默认项目
+node project-parser.js ./src                              # 解析指定目录
+node project-parser.js -o ./results                       # 指定输出目录
+node project-parser.js --pattern "src/**/*.{jsx,tsx}"     # 自定义文件模式
+```
+
+### 🚀 批量处理项目文件夹
+
+解析器支持批量处理整个项目文件夹，自动识别所有符合条件的文件：
+
+```bash
+# 处理指定项目文件夹
+node test.js
+
+# 输出结构:
+output/
+├── project-summary.json          # 项目汇总信息
+├── [文件名1]/
+│   ├── [文件名1].json           # 完整文件信息
+│   ├── top-level/               # 顶层定义
+│   │   ├── [名称]_component.json
+│   │   ├── [名称]_function.json
+│   │   └── [名称]_variable.json
+│   └── nested/                  # 嵌套定义
+│       ├── [作用域]_[名称]_function.json
+│       └── [作用域]_[名称]_component.json
+└── [文件名2]/
+    ├── [文件名2].json
+    ├── top-level/
+    └── nested/
+```
+
+### 📊 项目汇总信息
+
+批量处理会生成 `project-summary.json` 文件，包含：
+
+```json
+{
+  "projectPath": "./test-files",
+  "totalFiles": 3,
+  "successCount": 3,
+  "errorCount": 0,
+  "fileTypes": {
+    "jsx": 2,
+    "tsx": 0,
+    "js": 1,
+    "ts": 0
+  },
+  "statistics": {
+    "totalComponents": 2,
+    "totalFunctions": 5,
+    "totalClasses": 0,
+    "totalVariables": 0,
+    "totalImports": 6,
+    "totalExports": 5
+  },
+  "files": [
+    {
+      "fileName": "FunctionComponent.jsx",
+      "filePath": "test-files/FunctionComponent.jsx",
+      "fileType": "javascript",
+      "isJSX": true,
+      "components": 1,
+      "functions": 3,
+      "imports": 4,
+      "exports": 2
+    }
+  ]
+}
 ```
 
 ## 📋 输出模式

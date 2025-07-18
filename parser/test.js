@@ -16,45 +16,35 @@ async function runTests() {
   
   console.log('开始测试React解析器...\n')
   
-  // 测试单个文件解析
-  console.log('=== 测试1: 函数组件解析 ===')
-  const result1 = await parser.parseReactFile('./test-files/FunctionComponent.jsx')
-  // console.log('解析结果:', JSON.stringify(result1, null, 2))
+  // 测试批量解析整个项目文件夹
+  console.log('=== 测试: 批量解析项目文件夹 ===')
   
-  // 使用新的分离式输出保存解析结果
+  const projectPath = './test-files'
   const outputDir = './output'
   
-  // 确保输出目录存在
-  await fs.ensureDir(outputDir)
-  
-  // 使用新的分离式保存方法
-  await parser.saveResults(result1, outputDir)
-  console.log(`✅ 解析结果已分离保存到: ${outputDir}`)
-  
-  
-  // console.log('\n=== 测试2: 类组件解析 ===')
-  // const result2 = await parser.parseReactFile('./test-files/ClassComponent.jsx')
-  // console.log('解析结果:', JSON.stringify(result2, null, 2))
-  
-  // console.log('\n=== 测试3: TypeScript组件解析 ===')
-  // const result3 = await parser.parseReactFile('./test-files/TypeScriptComponent.tsx')
-  // console.log('解析结果:', JSON.stringify(result3, null, 2))
-  
-  // console.log('\n=== 测试4: Hooks组件解析 ===')
-  // const result4 = await parser.parseReactFile('./test-files/HooksComponent.jsx')
-  // console.log('解析结果:', JSON.stringify(result4, null, 2))
-  
-  // // 测试批量解析
-  // console.log('\n=== 测试5: 批量解析测试文件 ===')
-  // const batchResults = await parser.parseProject('./test-files', '**/*.{jsx,tsx}')
-  // console.log(`批量解析完成，共解析 ${batchResults.length} 个文件`)
-  
-  // // 保存结果
-  // console.log('\n=== 测试6: 保存解析结果 ===')
-  // await parser.saveResults(batchResults, './output/individual')
-  // await parser.saveSummaryResults(batchResults, './output/summary.json')
-  
-  console.log('\n测试完成！')
+  try {
+    const result = await parser.parseProjectFolder(projectPath, outputDir)
+    
+    console.log('\n🎉 项目解析完成!')
+    console.log(`📊 项目统计:`)
+    console.log(`   - 总文件数: ${result.summary.totalFiles}`)
+    console.log(`   - 成功解析: ${result.summary.successCount}`)
+    console.log(`   - 解析失败: ${result.summary.errorCount}`)
+    console.log(`   - JSX文件: ${result.summary.fileTypes.jsx}`)
+    console.log(`   - TSX文件: ${result.summary.fileTypes.tsx}`)
+    console.log(`   - JS文件: ${result.summary.fileTypes.js}`)
+    console.log(`   - TS文件: ${result.summary.fileTypes.ts}`)
+    console.log(`   - 总组件数: ${result.summary.statistics.totalComponents}`)
+    console.log(`   - 总函数数: ${result.summary.statistics.totalFunctions}`)
+    console.log(`   - 总导入数: ${result.summary.statistics.totalImports}`)
+    console.log(`   - 总导出数: ${result.summary.statistics.totalExports}`)
+    
+    console.log(`\n📁 输出目录: ${outputDir}`)
+    console.log(`📄 汇总文件: ${outputDir}/project-summary.json`)
+    
+  } catch (error) {
+    console.error('❌ 项目解析失败:', error.message)
+  }
 }
 
 /**
