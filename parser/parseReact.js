@@ -501,6 +501,7 @@ class ReactSimpleParser {
       const results = []
       let successCount = 0
       let errorCount = 0
+      const saveResultsParams = [];
       
       // 逐个解析文件
       for (let i = 0; i < files.length; i++) {
@@ -520,7 +521,8 @@ class ReactSimpleParser {
             successCount++
             
             // 保存分离式输出
-            await this.saveResults(result, outputDir, projectPath)
+            // await this.saveResults(result, outputDir, projectPath);
+            saveResultsParams.push([result, outputDir, projectPath]);
             results.push(result)
           }
         } catch (error) {
@@ -528,6 +530,8 @@ class ReactSimpleParser {
           errorCount++
         }
       }
+      // 批量保存解析结果
+      await Promise.all(saveResultsParams.map(params => this.saveResults(...params)));
       
       // 生成项目汇总信息
       const summary = {
