@@ -230,23 +230,20 @@ class ReactSimpleParser {
         }
       },
 
-      // 提取类组件
+      // 提取类（包括React组件类和普通类）
       ClassDeclaration: {
         enter: (path) => {
-          if (isReactComponent(path.node)) {
-            const className = path.node.id.name
-            const currentScope = scopeStack.length > 0 ? scopeStack.join('.') : null
-            
-            this.extractClassComponent(path.node, result, currentScope)
-            
-            // 将当前类推入作用域栈
-            scopeStack.push(className)
-          }
+          const className = path.node.id.name
+          const currentScope = scopeStack.length > 0 ? scopeStack.join('.') : null
+          
+          // 提取所有类，不仅仅是React组件
+          this.extractClass(path.node, result, currentScope, content, lines)
+          
+          // 将当前类推入作用域栈
+          scopeStack.push(className)
         },
         exit: (path) => {
-          if (isReactComponent(path.node)) {
-            scopeStack.pop()
-          }
+          scopeStack.pop()
         }
       },
     })
@@ -400,11 +397,14 @@ class ReactSimpleParser {
   }
 
   /**
-   * 提取类组件信息
+   * 提取类信息（包括React组件类和普通类）
    */
-  extractClassComponent(node, result, scopePath = null) {
+  extractClass(node, result, scopePath = null, content = '', lines = []) {
     const className = node.id.name
     const fileName = result.fileName
+    
+    // 判断是否是React组件
+    const isReactComp = isReactComponent(node)
     
     // 生成qualifiedName: [文件名]::[作用域路径].[名称]
     let qualifiedName = `${fileName}::`
@@ -414,13 +414,17 @@ class ReactSimpleParser {
       qualifiedName += className
     }
     
-    const componentInfo = {
+    const classInfo = {
       type: 'class',
       name: className,
       startLine: node.loc.start.line,
       endLine: node.loc.end.line,
-      isComponent: true,
+      isComponent: isReactComp, // 区分是否是React组件
+      isReactComponent: isReactComp, // 明确标识React组件
+      componentType: isReactComp ? 'class' : null, // React组件类型
       methods: [],
+      properties: [], // 添加属性字段
+      superClass: null, // 父类信息
       scopePath, // 作用域路径，顶层为null
       isTopLevel: scopePath === null, // 是否为顶层类
       qualifiedName, // 全局唯一限定名
@@ -430,20 +434,61 @@ class ReactSimpleParser {
       codeBlock: '' // 需要在后面填充
     }
 
-    // 提取类方法
+    // 提取类的源代码文本
+    if (content && lines.length > 0) {
+      const startLine = node.loc.start.line - 1 // 转换为0索引
+      const endLine = node.loc.end.line - 1
+      
+      if (startLine >= 0 && endLine < lines.length) {
+        const classLines = lines.slice(startLine, endLine + 1)
+        classInfo.codeBlock = classLines.join('\n')
+      }
+    }
+
+    // 提取父类信息
+    if (node.superClass) {
+      if (t.isIdentifier(node.superClass)) {
+        classInfo.superClass = node.superClass.name
+      } else if (t.isMemberExpression(node.superClass)) {
+        // 处理 React.Component 这种情况
+        const object = node.superClass.object.name
+        const property = node.superClass.property.name
+        classInfo.superClass = `${object}.${property}`
+      }
+    }
+
+    // 提取类方法和属性
     if (node.body && node.body.body) {
-      node.body.body.forEach(method => {
-        if (t.isClassMethod(method) && t.isIdentifier(method.key)) {
-          componentInfo.methods.push({
-            name: method.key.name,
-            type: method.kind, // 'method', 'constructor', 'get', 'set'
-            line: method.loc.start.line
+      node.body.body.forEach(member => {
+        if (t.isClassMethod(member) && t.isIdentifier(member.key)) {
+          classInfo.methods.push({
+            name: member.key.name,
+            type: member.kind, // 'method', 'constructor', 'get', 'set'
+            line: member.loc.start.line,
+            isStatic: member.static || false,
+            isAsync: member.async || false
+          })
+        } else if (t.isClassProperty(member) && t.isIdentifier(member.key)) {
+          // 提取类属性
+          classInfo.properties.push({
+            name: member.key.name,
+            line: member.loc.start.line,
+            isStatic: member.static || false,
+            hasValue: member.value !== null
           })
         }
       })
     }
 
-    result.components.push(componentInfo)
+    result.components.push(classInfo)
+  }
+
+  /**
+   * 提取类组件信息（保留向后兼容）
+   */
+  extractClassComponent(node, result, scopePath = null, content = '', lines = []) {
+    // 重定向到新的extractClass方法
+    this.extractClass(node, result, scopePath, content, lines)
   }
 
   /**
@@ -708,12 +753,22 @@ class ReactSimpleParser {
    * @param {string} outputDir - 输出目录
    */
   async saveNestedDefinitions(result, outputDir) {
-    // 保存嵌套组件
+    // 保存嵌套组件和类
     for (const component of result.components) {
       if (!component.isTopLevel) {
-        const componentData = this.createDefinitionJson(result, component, 'component')
+        // 根据实际类型确定保存类型和文件名
+        let saveType, fileName
+        if (component.type === 'class') {
+          saveType = 'class'
+          fileName = `${component.scopePath}_${component.name}_class.json`
+        } else {
+          saveType = 'component'
+          fileName = `${component.scopePath}_${component.name}_component.json`
+        }
+        
+        const componentData = this.createDefinitionJson(result, component, saveType)
         await fs.writeJSON(
-          path.join(outputDir, `${component.scopePath}_${component.name}_component.json`),
+          path.join(outputDir, fileName),
           componentData,
           { spaces: 2 }
         )
