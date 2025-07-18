@@ -267,7 +267,7 @@ class ReactSimpleParser {
         exportInfo.name = node.declaration.id ? node.declaration.id.name : 'anonymous'
       }
     } else if (type === 'named') {
-      const name = get(node, 'declaration.declarations[0].id.name')
+      const name = get(node, 'declaration.declarations[0].id.name') || get(node, 'declaration.id.name')
       exportInfo.name = name;
       if (!name) {
         console.log('ExportNamedNotFound##### ', node);
