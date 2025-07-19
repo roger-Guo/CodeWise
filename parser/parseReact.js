@@ -9,7 +9,7 @@ import path from 'path'
 import { glob } from 'glob'
 import _ from 'lodash'
 import { analyzeUsedImports } from './src/encoder/dependencies/index.js'
-import { isReactComponent, returnsJSX, isLocalImport, resolveImportPath } from './utils/index.js'
+import { isReactComponent, isLocalImport, resolveImportPath } from './utils/index.js'
 
 const { get } = _;
 /**
@@ -335,14 +335,6 @@ class ReactSimpleParser {
         }
         return { name: 'unknown', type: 'complex' }
       })
-    }
-
-    // 判断是否是React组件（首字母大写且返回JSX）
-    if (functionInfo.name[0] === functionInfo.name[0].toUpperCase()) {
-      functionInfo.isComponent = returnsJSX(node)
-      if (functionInfo.isComponent) {
-        result.components.push(functionInfo)
-      }
     }
 
     result.functions.push(functionInfo)
@@ -702,9 +694,10 @@ class ReactSimpleParser {
     // 保存顶层组件
     for (const component of result.components) {
       if (component.isTopLevel) {
-        const componentData = this.createDefinitionJson(result, component, 'component')
+        const type = component.type === 'class' ? 'class' : 'component';
+        const componentData = this.createDefinitionJson(result, component, type)
         await fs.writeJSON(
-          path.join(outputDir, `${component.name}_component.json`),
+          path.join(outputDir, `${component.name}_${type}.json`),
           componentData,
           { spaces: 2 }
         )
@@ -733,17 +726,6 @@ class ReactSimpleParser {
           { spaces: 2 }
         )
       }
-    }
-
-    // 保存顶层类
-    const topLevelClasses = result.components.filter(comp => comp.type === 'class' && comp.isTopLevel)
-    for (const cls of topLevelClasses) {
-      const classData = this.createDefinitionJson(result, cls, 'class')
-      await fs.writeJSON(
-        path.join(outputDir, `${cls.name}_class.json`),
-        classData,
-        { spaces: 2 }
-      )
     }
   }
 
