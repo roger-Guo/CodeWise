@@ -119,6 +119,11 @@ const findProjectRoot = (currentPath) => {
 }
 
 const getFileNameInProject = (filePath, projectName) => {
+    // 如果filePath为null或undefined，直接返回
+    if (!filePath) {
+        return filePath
+    }
+    
     if (filePath.indexOf(projectName) === 0) {
         return filePath
     } else if (filePath.includes(projectName)) {

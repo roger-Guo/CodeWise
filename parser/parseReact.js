@@ -573,6 +573,14 @@ class ReactSimpleParser {
         }
       }
       // 批量保存解析结果
+      // await Promise.all(saveResultsParams.map(params => this.saveResults(...params)));
+      
+      // 构建反向引用关系
+      console.log('🔗 构建反向引用关系...')
+      this.buildBackwardReferences(results)
+      
+      // 重新保存带有反向引用的结果
+      console.log('💾 保存更新后的结果...')
       await Promise.all(saveResultsParams.map(params => this.saveResults(...params)));
       
       // 生成项目汇总信息
@@ -832,12 +840,113 @@ class ReactSimpleParser {
       // 依赖信息
       dependencyInfo: {
         forwardReferences: this.getForwardReferences(definition),
-        backwardReferences: [], // 需要全局分析才能获得
+        backwardReferences: definition.backwardReferences || [], // 从定义对象中读取反向引用
         usedImports: definition.usedImports || []
       }
     }
 
     return baseData
+  }
+
+  /**
+   * 构建反向引用关系
+   * @param {Array} results - 所有文件的解析结果
+   */
+  buildBackwardReferences(results) {
+    console.log('📋 第一步：收集所有正向引用和文件JSON映射...')
+    
+    // 第一步：收集所有正向引用（以resolvedPath为key）和所有文件的JSON（以chunkId为key）
+    const forwardReferencesMap = new Map() // resolvedPath -> [{fromDefinition, forwardRef}, ...]
+    const definitionJsonMap = new Map()    // chunkId -> definitionJson
+    
+    results.forEach(result => {
+      // 遍历所有定义（组件和函数）
+      [...result.components, ...result.functions].forEach(definition => {
+        const currentChunkId = `${result.filePath}::${definition.qualifiedName.split('::')[1]}`
+        
+        // 将定义的JSON保存到map中（以chunkId为key）
+        const definitionJson = this.createDefinitionJson(result, definition, definition.type)
+        definitionJsonMap.set(currentChunkId, definitionJson)
+        
+        // 获取该定义的正向引用
+        const forwardRefs = this.getForwardReferences(definition)
+        
+        // 将正向引用保存到map中（以resolvedPath为key）
+        forwardRefs.forEach(forwardRef => {
+          if (forwardRef.resolvedPath) {
+            if (!forwardReferencesMap.has(forwardRef.resolvedPath)) {
+              forwardReferencesMap.set(forwardRef.resolvedPath, [])
+            }
+            
+            forwardReferencesMap.get(forwardRef.resolvedPath).push({
+              fromDefinition: definition,
+              fromChunkId: currentChunkId,
+              fromFile: result.filePath,
+              forwardRef: forwardRef
+            })
+          }
+        })
+      })
+    })
+    
+    console.log(`📊 收集统计:`)
+    console.log(`   - 正向引用路径数: ${forwardReferencesMap.size}`)
+    console.log(`   - 定义JSON数: ${definitionJsonMap.size}`)
+    
+    console.log('🔗 第二步：匹配正向引用到反向引用...')
+    
+    // 第二步：将正向引用匹配到对应文件的JSON的反向引用中
+    let matchedCount = 0
+    
+    forwardReferencesMap.forEach((forwardRefInfos, resolvedPath) => {
+      console.log(`🔍 处理正向引用: ${resolvedPath}`)
+      
+      // 在definitionJsonMap中查找匹配的chunkId
+      definitionJsonMap.forEach((definitionJson, chunkId) => {
+        // 使用includes方法判断resolvedPath是否匹配当前chunkId
+        if (resolvedPath.includes(chunkId) || chunkId.includes(resolvedPath)) {
+          console.log(`  ✅ 找到匹配的chunkId: ${chunkId}`)
+          
+          // 将所有指向这个resolvedPath的正向引用添加为反向引用
+          forwardRefInfos.forEach(refInfo => {
+            if (!definitionJson.dependencyInfo.backwardReferences) {
+              definitionJson.dependencyInfo.backwardReferences = []
+            }
+            
+            definitionJson.dependencyInfo.backwardReferences.push({
+              type: refInfo.forwardRef.type,
+              fromFile: refInfo.fromFile,
+              fromDefinition: refInfo.fromDefinition.qualifiedName,
+              fromChunkId: refInfo.fromChunkId,
+              referenceType: refInfo.forwardRef.type,
+              line: refInfo.forwardRef.line || 0
+            })
+            
+            matchedCount++
+          })
+        }
+      })
+    })
+    
+    // 第三步：将更新后的反向引用同步回原始定义对象
+    console.log('💾 第三步：同步反向引用到原始定义...')
+    
+    results.forEach(result => {
+      [...result.components, ...result.functions].forEach(definition => {
+        const currentChunkId = `${result.filePath}::${definition.qualifiedName.split('::')[1]}`
+        const definitionJson = definitionJsonMap.get(currentChunkId)
+        
+        if (definitionJson && definitionJson.dependencyInfo.backwardReferences) {
+          definition.backwardReferences = definitionJson.dependencyInfo.backwardReferences
+        } else {
+          definition.backwardReferences = []
+        }
+      })
+    })
+    
+    console.log(`✅ 完成反向引用构建:`)
+    console.log(`   - 处理的定义数: ${definitionJsonMap.size}`)
+    console.log(`   - 匹配的反向引用数: ${matchedCount}`)
   }
 
   /**
