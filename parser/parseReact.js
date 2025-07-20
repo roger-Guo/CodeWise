@@ -151,16 +151,20 @@ class ReactSimpleParser {
         // 解析导入说明符
         importNode.specifiers.forEach(spec => {
           if (t.isImportDefaultSpecifier(spec)) {
+            const resolvedPath = resolveImportPath(importInfo.source, result.filePath);
             importInfo.specifiers.push({
               type: 'default',
               imported: 'default',
+              resolvedPath,
               local: spec.local.name
             })
           } else if (t.isImportSpecifier(spec)) {
+            const resolvedPath = resolveImportPath(importInfo.source, result.filePath);
             importInfo.specifiers.push({
               type: 'named',
               imported: spec.imported.name,
-              local: spec.local.name
+              local: spec.local.name,
+              resolvedPath,
             })
           } else if (t.isImportNamespaceSpecifier(spec)) {
             importInfo.specifiers.push({
@@ -175,9 +179,10 @@ class ReactSimpleParser {
 
         // 添加到依赖关系
         if (isLocalImport(importInfo.source)) {
+          const resolvedPath = resolveImportPath(importInfo.source, result.filePath);
           result.dependencies.push({
             source: importInfo.source,
-            resolvedPath: resolveImportPath(importInfo.source, result.filePath),
+            resolvedPath,
             imports: importInfo.specifiers
           })
         }
@@ -841,14 +846,15 @@ class ReactSimpleParser {
   getForwardReferences(definition) {
     const references = []
     
-    // 从imports中查找该定义使用的导入
+    // 从imports中查找该定义使用的导入 只处理本地导入
     if (definition.usedImports) {
-      definition.usedImports.forEach(imp => {
+      definition.usedImports.filter(imp => isLocalImport(imp.source)).forEach(imp => {
         references.push({
           type: 'import',
           source: imp.source,
           imported: imp.imported,
-          resolvedPath: imp.resolvedPath || imp.source,
+          local: imp.local,
+          resolvedPath: imp.resolvedPath + '::' + imp.local,
           line: imp.importLine
         })
       })

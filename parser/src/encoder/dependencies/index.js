@@ -17,6 +17,7 @@ export const analyzeUsedImports = (node, imports) => {
           source: importInfo.source,
           imported: spec.imported,
           type: spec.type,
+          resolvedPath: spec.resolvedPath,
           line: importInfo.line
         })
       })
@@ -72,6 +73,7 @@ export const analyzeUsedImports = (node, imports) => {
             imported: importInfo.imported,
             local: identifier,
             type: importInfo.type,
+            resolvedPath: importInfo.resolvedPath,
             importLine: importInfo.line
           })
         }
