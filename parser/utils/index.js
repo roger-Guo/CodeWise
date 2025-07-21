@@ -60,7 +60,7 @@ export const resolveImportPath1 = (source, currentFilePath) => {
     else if (source.startsWith('@/')) {
         // 假设@指向项目根目录，需要找到项目根目录
         const projectRoot = findProjectRoot(currentFilePath)
-        resolvedPath = path.resolve(projectRoot, source.replace('@/', ''))
+        resolvedPath = path.resolve(projectRoot, source.replace('@/', 'src/'))
     }
     else {
         return source
@@ -135,7 +135,7 @@ const getFileNameInProject = (filePath, projectName) => {
 /**
  * 解析导入路径 
  */
-export const resolveImportPath = (source, currentFilePath, projectName = 'todo-list') => {
+export const resolveImportPath = (source, currentFilePath, projectName = 'ant-design-pro') => {
     const path = resolveImportPath1(source, currentFilePath)
     return getFileNameInProject(path, projectName)
 }

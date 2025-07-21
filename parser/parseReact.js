@@ -740,6 +740,24 @@ class ReactSimpleParser {
         )
       }
     }
+
+    // 保存顶层导入（针对重导出文件）
+    // 如果文件没有任何顶层定义（函数、组件、类），但有导入和导出，则创建一个默认文件
+    const hasTopLevelDefinitions = result.components.some(c => c.isTopLevel) || 
+                                   result.functions.some(f => f.isTopLevel) ||
+                                   result.exports.some(e => e.type === 'variable' && e.isTopLevel)
+    
+    if (!hasTopLevelDefinitions && result.imports.length > 0 && result.exports.length > 0) {
+      // 为重导出文件创建一个默认的顶层JSON
+      const fileBaseName = path.parse(result.fileName).name
+      const defaultData = this.createFileDefinitionJson(result)
+      await fs.writeJSON(
+        path.join(outputDir, `${fileBaseName}_default.json`),
+        defaultData,
+        { spaces: 2 }
+      )
+    }
+    
   }
 
   /**
@@ -849,6 +867,84 @@ class ReactSimpleParser {
   }
 
   /**
+   * 创建文件定义JSON（用于重导出文件）
+   * @param {Object} result - 解析结果
+   * @returns {Object} 格式化的JSON数据
+   */
+  createFileDefinitionJson(result) {
+    const fileBaseName = path.parse(result.fileName).name
+    const baseData = {
+      // 文件元数据
+      fileMetadata: {
+        chunkId: result.filePath,
+        filePath: result.filePath,
+        fileName: result.fileName,
+        fileType: result.fileType,
+        isJSX: result.isJSX,
+        totalLines: result.totalLines,
+        repositoryName: "ant-design-pro",
+        version: "current",
+        branch: "main"
+      },
+
+      // 定义信息
+      definitionInfo: {
+        comments: [],
+        name: fileBaseName,
+        qualifiedName: result.fileName,
+        definitionType: "file",
+        scopePath: null,
+        isTopLevel: true,
+        startLine: 1,
+        endLine: result.totalLines,
+        codeBlock: result.content || '',
+        description: "Re-export file that imports and exports modules"
+      },
+
+      // 依赖信息
+      dependencyInfo: {
+        forwardReferences: this.getFileForwardReferences(result),
+        backwardReferences: [], // 从result中读取反向引用
+        usedImports: result.imports || [],
+        reExports: result.exports || []
+      }
+    }
+
+    return baseData
+  }
+
+  /**
+   * 获取文件级别的前向引用
+   * @param {Object} result - 解析结果
+   * @returns {Array} 前向引用数组
+   */
+  getFileForwardReferences(result) {
+    const references = []
+    
+    // 处理所有导入作为前向引用
+    if (result.imports) {
+      result.imports.forEach(imp => {
+        if (isLocalImport(imp.source)) {
+          imp.specifiers.forEach(spec => {
+            if (spec.resolvedPath) {
+              references.push({
+                type: 'file_import',
+                source: imp.source,
+                imported: spec.imported,
+                local: spec.local,
+                resolvedPath: spec.resolvedPath + '::' + spec.imported,
+                line: imp.line
+              })
+            }
+          })
+        }
+      })
+    }
+
+    return references
+  }
+
+  /**
    * 构建反向引用关系
    * @param {Array} results - 所有文件的解析结果
    */
@@ -860,6 +956,18 @@ class ReactSimpleParser {
     const definitionJsonMap = new Map()    // chunkId -> definitionJson
     
     results.forEach(result => {
+      // 检查是否是重导出文件（没有顶层定义但有导入导出）
+      const hasTopLevelDefinitions = result.components.some(c => c.isTopLevel) || 
+                                     result.functions.some(f => f.isTopLevel) ||
+                                     result.exports.some(e => e.type === 'variable' && e.isTopLevel)
+      
+      if (!hasTopLevelDefinitions && result.imports.length > 0 && result.exports.length > 0) {
+        // 为重导出文件创建虚拟定义并添加到映射中
+        const fileChunkId = result.filePath
+        const fileDefinitionJson = this.createFileDefinitionJson(result)
+        definitionJsonMap.set(fileChunkId, fileDefinitionJson)
+      }
+      
       // 遍历所有定义（组件和函数）
       [...result.components, ...result.functions].forEach(definition => {
         const currentChunkId = `${result.filePath}::${definition.qualifiedName.split('::')[1]}`
@@ -887,6 +995,39 @@ class ReactSimpleParser {
           }
         })
       })
+      
+      // 处理文件级别的导入关系（特别是重导出文件）
+      if (result.imports && result.imports.length > 0) {
+        // 为每个导入创建正向引用
+        result.imports.forEach(imp => {
+          if (isLocalImport(imp.source)) {
+            // 为每个导入的标识符创建正向引用
+            imp.specifiers.forEach(spec => {
+              if (spec.resolvedPath) {
+                const resolvedPath = spec.resolvedPath + '::' + spec.imported
+                
+                if (!forwardReferencesMap.has(resolvedPath)) {
+                  forwardReferencesMap.set(resolvedPath, [])
+                }
+                
+                forwardReferencesMap.get(resolvedPath).push({
+                  fromDefinition: null, // 文件级别的导入
+                  fromChunkId: result.filePath, // 使用文件路径作为chunkId
+                  fromFile: result.filePath,
+                  forwardRef: {
+                    type: 'file_import',
+                    source: imp.source,
+                    imported: spec.imported,
+                    local: spec.local,
+                    resolvedPath: resolvedPath,
+                    line: imp.line
+                  }
+                })
+              }
+            })
+          }
+        })
+      }
     })
     
     console.log(`📊 收集统计:`)
@@ -916,7 +1057,7 @@ class ReactSimpleParser {
             definitionJson.dependencyInfo.backwardReferences.push({
               type: refInfo.forwardRef.type,
               fromFile: refInfo.fromFile,
-              fromDefinition: refInfo.fromDefinition.qualifiedName,
+              fromDefinition: refInfo.fromDefinition ? refInfo.fromDefinition.qualifiedName : 'file-level',
               fromChunkId: refInfo.fromChunkId,
               referenceType: refInfo.forwardRef.type,
               line: refInfo.forwardRef.line || 0
