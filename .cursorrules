@@ -57,7 +57,8 @@ CodeWise是一个基于代码知识图谱的智能代码库检索与问答Agent�
 
 ### 目录组织
 - `frontend/` - React 18前端代码，使用vite构建
-- `backend/` - Python FastAPI后端API服务
+- `rag/` - Python FastAPI RAG服务
+- `agent/` - Python LangGraph Agent服务
 - `parser/` - **代码知识图谱解析器**，构建文件依赖关系图谱
 - `models/` - 本地嵌入模型存储目录
 - `db/` - chroma_db向量数据库文件

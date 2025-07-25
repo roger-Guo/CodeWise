@@ -91,7 +91,8 @@ CodeWise 是一个基于本地大语言模型和代码知识图谱的智能代�
 CodeWise/
 ├── frontend/          # React 18 前端 + vite + Ant Design React
 ├── parser/            # 代码知识图谱解析器
-├── backend/           # Python FastAPI 后端
+├── rag/               # Python FastAPI RAG服务
+├── agent/             # Python LangGraph Agent服务
 ├── models/            # 本地嵌入模型存储 
 ├── db/                # 向量数据库 chroma_db
 ├── data/              # 源码及处理后的JSON文件
