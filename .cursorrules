@@ -12,7 +12,7 @@ CodeWise是一个基于代码知识图谱的智能代码库检索与问答Agent�
 - 向量数据库：chroma_db
 - 中文嵌入模型：BAAI/bge-m3
 - RAG框架：LlamaIndex
-- **高级Agent框架：LangGraph (规划中)**
+- **高级Agent框架：LangGraph**
 
 ### 前端开发
 - 使用 React 18 + Vite + TypeScript
@@ -99,7 +99,7 @@ CodeWise是一个基于代码知识图谱的智能代码库检索与问答Agent�
 - 嵌入模型调用需要做好错误处理和重试机制
 - **支持基于调用链的上下文扩展**
 
-### LangGraph Agent开发 (规划中)
+### LangGraph Agent开发 
 - **状态管理**：维护全局上下文栈、访问文件列表、调用链记录
 - **节点设计**：实现Retrieve、Analyze、Router、Generate四个核心节点
 - **边条件**：基于依赖关系和相关性进行智能路由决策

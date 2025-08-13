@@ -79,7 +79,7 @@ CodeWise 是一个基于本地大语言模型和代码知识图谱的智能代�
 - **大语言模型**: deepseek-coder-v2
 - **向量数据库**: chroma_db
 - **嵌入模型**: BAAI/bge-m3
-- **RAG 框架**: LlamaIndex, **LangGraph (规划中)**
+- **RAG 框架**: LlamaIndex, **LangGraph**
 - **代码解析**: `@babel/parser`, `@babel/traverse`, `@babel/types`, `@babel/preset-react`
 - **python包管理器**: miniconda
 - **miniconda虚拟环境**: codewise
