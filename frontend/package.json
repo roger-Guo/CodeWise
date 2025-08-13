@@ -1,0 +1,54 @@
+{
+  "name": "codewise-frontend",
+  "version": "1.0.0",
+  "description": "CodeWise智能代码库检索与问答系统前端界面",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext js,jsx,ts,tsx --fix"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "antd": "^5.12.0",
+    "@ant-design/icons": "^5.2.6",
+    "axios": "^1.6.2",
+    "dayjs": "^1.11.10",
+    "react-router-dom": "^6.20.0",
+    "react-syntax-highlighter": "^15.5.0",
+    "react-markdown": "^9.0.1",
+    "mermaid": "^10.6.1",
+    "d3": "^7.8.5",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@types/react-syntax-highlighter": "^15.5.10",
+    "@types/d3": "^7.4.3",
+    "zustand": "^4.4.7",
+    "ahooks": "^3.7.8",
+    "classnames": "^2.3.2"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-react": "^4.1.0",
+    "@types/node": "^20.9.0",
+    "typescript": "^5.2.0",
+    "eslint": "^8.53.0",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "vite",
+    "antd",
+    "code-analysis",
+    "ai-assistant"
+  ],
+  "author": "CodeWise Team",
+  "license": "MIT"
+}

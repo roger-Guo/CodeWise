@@ -1,0 +1,357 @@
+.analysis-result-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.analysis-result-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.analysis-details-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 加载状态 */
+.analysis-result-card.loading {
+  min-height: 300px;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.loading-info {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.loading-info .ant-typography {
+  margin-bottom: 16px;
+}
+
+.progress-info {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.current-step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.progress-stats {
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* 流式消息 */
+.streaming-messages {
+  margin-top: 20px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fafafa;
+}
+
+[data-theme='dark'] .streaming-messages {
+  border-color: #303030;
+  background: #1f1f1f;
+}
+
+.stream-message {
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  border-left: 3px solid #1890ff;
+  background: white;
+}
+
+[data-theme='dark'] .stream-message {
+  background: #262626;
+}
+
+.stream-message.error {
+  border-left-color: #ff4d4f;
+  background: #fff2f0;
+}
+
+[data-theme='dark'] .stream-message.error {
+  background: #2a1215;
+}
+
+/* 错误状态 */
+.analysis-result-card.error {
+  border-color: #ff4d4f;
+}
+
+/* 空状态 */
+.analysis-result-card.empty {
+  min-height: 200px;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* 结果头部 */
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+[data-theme='dark'] .result-header {
+  border-bottom-color: #303030;
+}
+
+/* 查询显示 */
+.query-display {
+  margin-bottom: 32px;
+}
+
+.query-text {
+  background: #f6f8fa;
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid #1890ff;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+[data-theme='dark'] .query-text {
+  background: #1f1f1f;
+  color: #e6e6e6;
+}
+
+/* 答案内容 */
+.answer-content {
+  margin-bottom: 24px;
+}
+
+.markdown-content {
+  position: relative;
+  line-height: 1.8;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  color: #1890ff;
+}
+
+[data-theme='dark'] .markdown-content h1,
+[data-theme='dark'] .markdown-content h2,
+[data-theme='dark'] .markdown-content h3,
+[data-theme='dark'] .markdown-content h4 {
+  color: #4dc9ff;
+}
+
+.markdown-content p {
+  margin-bottom: 16px;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-bottom: 16px;
+  padding-left: 24px;
+}
+
+.markdown-content li {
+  margin-bottom: 8px;
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid #1890ff;
+  background: #f6f8fa;
+  margin: 16px 0;
+  padding: 16px 20px;
+  border-radius: 0 8px 8px 0;
+}
+
+[data-theme='dark'] .markdown-content blockquote {
+  background: #1f1f1f;
+  border-left-color: #4dc9ff;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid #f0f0f0;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+[data-theme='dark'] .markdown-content th,
+[data-theme='dark'] .markdown-content td {
+  border-color: #303030;
+}
+
+.markdown-content th {
+  background: #fafafa;
+  font-weight: 500;
+}
+
+[data-theme='dark'] .markdown-content th {
+  background: #262626;
+}
+
+/* 打字机光标 */
+.typewriter-cursor {
+  display: inline-block;
+  animation: blink 1s infinite;
+  color: #1890ff;
+  font-weight: bold;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* 代码高亮样式优化 */
+.markdown-content pre {
+  border-radius: 8px !important;
+  margin: 16px 0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.markdown-content code:not(pre code) {
+  background: #f6f8fa;
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-family: 'SFMono-Regular', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 0.9em;
+  color: #d73a49;
+}
+
+[data-theme='dark'] .markdown-content code:not(pre code) {
+  background: #2d3748;
+  color: #f56565;
+}
+
+/* 访问文件列表 */
+.visited-files {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.file-card {
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.file-card:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateX(4px);
+}
+
+.file-card .ant-typography {
+  margin-bottom: 0;
+}
+
+/* 标签页样式 */
+.analysis-details-card .ant-tabs-card .ant-tabs-tab {
+  border-radius: 8px 8px 0 0;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-bottom: none;
+}
+
+[data-theme='dark'] .analysis-details-card .ant-tabs-card .ant-tabs-tab {
+  background: #1f1f1f;
+  border-color: #303030;
+}
+
+.analysis-details-card .ant-tabs-card .ant-tabs-tab-active {
+  background: white;
+}
+
+[data-theme='dark'] .analysis-details-card .ant-tabs-card .ant-tabs-tab-active {
+  background: #141414;
+}
+
+/* Badge 样式 */
+.ant-badge .ant-badge-count {
+  background: #1890ff;
+  box-shadow: 0 0 0 1px #fff;
+}
+
+[data-theme='dark'] .ant-badge .ant-badge-count {
+  box-shadow: 0 0 0 1px #141414;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .result-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .current-step {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .progress-stats {
+    text-align: left;
+  }
+  
+  .progress-stats .ant-divider-vertical {
+    display: none;
+  }
+  
+  .progress-stats .ant-space {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .query-text {
+    font-size: 14px;
+    padding: 12px;
+  }
+  
+  .markdown-content {
+    font-size: 14px;
+  }
+  
+  .streaming-messages {
+    max-height: 150px;
+  }
+  
+  .analysis-details-card .ant-tabs-tab {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}

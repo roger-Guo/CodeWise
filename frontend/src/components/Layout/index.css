@@ -1,0 +1,167 @@
+/* 布局样式 */
+.desktop-sider {
+  box-shadow: 2px 0 8px 0 rgba(29, 35, 41, 0.05);
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1890ff;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 8px;
+}
+
+[data-theme='dark'] .logo {
+  border-bottom-color: #303030;
+}
+
+.logo img {
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+  transition: margin-right 0.2s;
+}
+
+.logo span {
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity 0.2s;
+}
+
+/* 头部样式 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+[data-theme='dark'] .header {
+  background: #141414;
+  border-bottom-color: #303030;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-menu-button {
+  margin-right: 16px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.current-page {
+  color: #1890ff;
+}
+
+.theme-toggle {
+  color: #666;
+  transition: color 0.2s;
+}
+
+.theme-toggle:hover {
+  color: #1890ff;
+}
+
+[data-theme='dark'] .theme-toggle {
+  color: #aaa;
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+  color: #1890ff;
+}
+
+/* 主内容区样式 */
+.main-content {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: calc(100vh - 64px);
+}
+
+[data-theme='dark'] .main-content {
+  background: #000;
+}
+
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* 移动端抽屉标题 */
+.mobile-drawer-title {
+  display: flex;
+  align-items: center;
+}
+
+.mobile-drawer-title img {
+  width: 28px;
+  height: 28px;
+  margin-right: 12px;
+}
+
+/* 服务状态容器 */
+.service-status-container {
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  padding: 0 16px;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 16px;
+  }
+  
+  .main-content {
+    padding: 16px;
+  }
+  
+  .breadcrumb {
+    font-size: 14px;
+  }
+}
+
+/* 动画效果 */
+.desktop-sider,
+.header,
+.main-content {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 侧边栏收缩状态下的特殊处理 */
+.ant-layout-sider-collapsed .logo span {
+  opacity: 0;
+}
+
+.ant-layout-sider-collapsed .logo img {
+  margin-right: 0;
+}
+
+.ant-layout-sider-collapsed .service-status-container {
+  padding: 0 8px;
+}

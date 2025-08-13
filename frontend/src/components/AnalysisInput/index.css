@@ -1,0 +1,265 @@
+.analysis-input-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 示例查询区域 */
+.example-queries {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+
+[data-theme='dark'] .example-queries {
+  background: #1f1f1f;
+  border-color: #303030;
+}
+
+.example-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-weight: 500;
+  color: #666;
+  gap: 8px;
+}
+
+[data-theme='dark'] .example-label {
+  color: #aaa;
+}
+
+.example-tag {
+  transition: all 0.2s;
+  border: 1px solid #d9d9d9;
+  background: white;
+  color: #666;
+}
+
+.example-tag:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+  transform: translateY(-1px);
+}
+
+.example-tag.selected {
+  border-color: #1890ff;
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+[data-theme='dark'] .example-tag {
+  background: #262626;
+  border-color: #434343;
+  color: #aaa;
+}
+
+[data-theme='dark'] .example-tag:hover,
+[data-theme='dark'] .example-tag.selected {
+  background: #0f1419;
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+/* 查询输入框 */
+.query-textarea {
+  font-size: 15px;
+  line-height: 1.6;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.query-textarea:focus {
+  box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+}
+
+/* 表单项样式 */
+.action-form-item .ant-form-item-label {
+  opacity: 0;
+  height: 0;
+}
+
+.submit-button {
+  font-weight: 500;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
+}
+
+.submit-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3);
+}
+
+/* 分析类型说明 */
+.type-description {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f6f8fa;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+[data-theme='dark'] .type-description {
+  background: #1a1a1a;
+}
+
+.description-text {
+  color: #666;
+  font-size: 14px;
+}
+
+[data-theme='dark'] .description-text {
+  color: #aaa;
+}
+
+/* 高级配置区域 */
+.advanced-config {
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 16px;
+  border: 1px solid #f0f0f0;
+}
+
+[data-theme='dark'] .advanced-config {
+  background: #1f1f1f;
+  border-color: #303030;
+}
+
+.advanced-config .ant-divider {
+  margin: 0 0 20px 0;
+  font-weight: 500;
+}
+
+.advanced-config .ant-slider {
+  margin-bottom: 12px;
+}
+
+.advanced-config .ant-slider-track {
+  background: linear-gradient(90deg, #1890ff, #36cfc9);
+}
+
+.advanced-config .ant-slider-handle {
+  border-color: #1890ff;
+}
+
+/* 分析提示区域 */
+.analysis-tips {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: linear-gradient(90deg, #e6f7ff, #f0f9ff);
+  border-radius: 8px;
+  border: 1px solid #b7eb8f;
+  gap: 12px;
+}
+
+[data-theme='dark'] .analysis-tips {
+  background: linear-gradient(90deg, #0f1419, #1a1a1a);
+  border-color: #2f4b69;
+}
+
+.tips-icon {
+  color: #52c41a;
+  font-size: 16px;
+}
+
+.tips-content {
+  flex: 1;
+}
+
+.tips-content span {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+}
+
+[data-theme='dark'] .tips-content span {
+  color: #aaa;
+}
+
+/* Select 下拉框样式优化 */
+.ant-select-large .ant-select-selection-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+/* 表单验证样式 */
+.ant-form-item-has-error .query-textarea {
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.1);
+}
+
+/* Switch 开关样式 */
+.ant-switch {
+  background: #d9d9d9;
+}
+
+.ant-switch-checked {
+  background: #1890ff;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .example-queries {
+    padding: 12px;
+  }
+  
+  .example-tag {
+    font-size: 12px;
+    padding: 2px 8px;
+    margin-bottom: 6px;
+  }
+  
+  .query-textarea {
+    font-size: 14px;
+  }
+  
+  .action-form-item .ant-space {
+    flex-wrap: wrap;
+  }
+  
+  .advanced-config {
+    padding: 16px;
+  }
+  
+  .analysis-tips {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .tips-content {
+    margin-top: 8px;
+  }
+  
+  .tips-content span {
+    display: block;
+    margin-bottom: 4px;
+  }
+}
+
+/* 动画效果 */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.advanced-config {
+  animation: slideDown 0.3s ease-out;
+}
+
+.type-description {
+  animation: slideDown 0.2s ease-out;
+}

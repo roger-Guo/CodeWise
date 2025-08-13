@@ -1,0 +1,177 @@
+.service-status-card {
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.service-status-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.status-text {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.details-button {
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.details-button:hover {
+  color: #1890ff;
+}
+
+/* 收缩状态样式 */
+.service-status-collapsed {
+  display: flex;
+  justify-content: center;
+}
+
+.status-button {
+  width: 40px !important;
+  height: 40px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.status-button:hover {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.status-button.status-success:hover {
+  background-color: rgba(82, 196, 26, 0.1);
+}
+
+.status-button.status-warning:hover {
+  background-color: rgba(250, 173, 20, 0.1);
+}
+
+.status-button.status-error:hover {
+  background-color: rgba(255, 77, 79, 0.1);
+}
+
+/* 详情面板样式 */
+.service-details {
+  min-width: 280px;
+  max-width: 400px;
+}
+
+.service-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+[data-theme='dark'] .service-details-header {
+  border-bottom-color: #303030;
+}
+
+.service-details-content {
+  space-y: 8px;
+}
+
+.service-detail-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #f8f8f8;
+}
+
+[data-theme='dark'] .service-detail-item {
+  border-bottom-color: #262626;
+}
+
+.service-detail-item:last-child {
+  border-bottom: none;
+}
+
+.service-name {
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.service-status {
+  color: #666;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+[data-theme='dark'] .service-status {
+  color: #999;
+}
+
+.additional-info {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+[data-theme='dark'] .additional-info {
+  border-top-color: #303030;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.info-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.info-value {
+  font-size: 12px;
+  color: #333;
+  font-family: 'SFMono-Regular', 'SF Mono', 'Monaco', monospace;
+}
+
+[data-theme='dark'] .info-label {
+  color: #999;
+}
+
+[data-theme='dark'] .info-value {
+  color: #ccc;
+}
+
+.no-data {
+  text-align: center;
+  color: #999;
+  padding: 20px 0;
+  font-size: 14px;
+}
+
+/* 状态指示器动画 */
+.pulse {
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0% {
+    box-shadow: 0 0 0 0 currentColor;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 4px transparent;
+    opacity: 0.8;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    opacity: 1;
+  }
+}

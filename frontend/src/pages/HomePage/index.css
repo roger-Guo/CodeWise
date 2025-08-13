@@ -1,0 +1,324 @@
+/* 首页样式 */
+.home-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 英雄区域 */
+.hero-section {
+  margin-bottom: 48px;
+}
+
+.hero-card {
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  border: none;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
+  color: white;
+}
+
+.hero-card .ant-card-body {
+  padding: 48px 32px;
+}
+
+.hero-content {
+  padding-right: 24px;
+}
+
+.hero-title {
+  color: white !important;
+  margin-bottom: 8px;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  display: block;
+  font-size: 18px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 8px;
+}
+
+.hero-description {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 24px 0 32px 0;
+}
+
+.hero-actions {
+  margin-top: 32px;
+}
+
+.hero-actions .ant-btn {
+  height: 48px;
+  padding: 0 32px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 24px;
+}
+
+.hero-actions .ant-btn-primary {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.hero-actions .ant-btn-default {
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.hero-actions .ant-btn:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s;
+}
+
+/* 统计卡片 */
+.hero-stats {
+  padding-left: 24px;
+}
+
+.stat-card {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.stat-card .ant-card-body {
+  padding: 16px;
+}
+
+.stat-card .ant-statistic-title {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 12px;
+}
+
+.stat-card .ant-statistic-content {
+  color: white !important;
+}
+
+/* 功能特性区域 */
+.features-section {
+  margin-bottom: 48px;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 32px;
+  color: #1890ff;
+}
+
+.feature-card {
+  height: 100%;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.feature-content {
+  text-align: center;
+  padding: 16px;
+}
+
+.feature-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.feature-icon {
+  font-size: 28px;
+}
+
+.feature-title {
+  margin: 16px 0 12px 0 !important;
+  color: #333;
+}
+
+.feature-description {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+/* 内容区域 */
+.content-section {
+  margin-bottom: 48px;
+}
+
+.analysis-types-card,
+.updates-card {
+  height: 100%;
+  border-radius: 12px;
+}
+
+.analysis-type-tag {
+  margin-bottom: 8px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+.analysis-description {
+  margin: 16px 0;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 时间线样式 */
+.timeline-item {
+  padding-bottom: 8px;
+}
+
+.timeline-title {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.timeline-description {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.timeline-time {
+  color: #999;
+  font-size: 12px;
+}
+
+/* 快速开始区域 */
+.quick-start-section {
+  margin-bottom: 24px;
+}
+
+.quick-start-card {
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #e1f5fe;
+}
+
+.quick-start-title {
+  text-align: center;
+  color: #1890ff;
+  margin-bottom: 32px !important;
+}
+
+.quick-start-step {
+  display: flex;
+  align-items: flex-start;
+  text-align: center;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1890ff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin: 0 auto 16px;
+  font-size: 16px;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content .ant-typography {
+  margin-bottom: 8px !important;
+}
+
+.step-content .ant-typography h5 {
+  color: #333;
+}
+
+/* 暗黑主题适配 */
+[data-theme='dark'] .hero-card {
+  background: linear-gradient(135deg, #1677ff 0%, #13c2c2 100%);
+}
+
+[data-theme='dark'] .feature-card {
+  border-color: #303030;
+  background: #1f1f1f;
+}
+
+[data-theme='dark'] .feature-title {
+  color: #fff;
+}
+
+[data-theme='dark'] .feature-description {
+  color: #aaa;
+}
+
+[data-theme='dark'] .timeline-title {
+  color: #fff;
+}
+
+[data-theme='dark'] .timeline-description {
+  color: #aaa;
+}
+
+[data-theme='dark'] .analysis-description {
+  color: #aaa;
+}
+
+[data-theme='dark'] .quick-start-card {
+  background: linear-gradient(135deg, #0f1419 0%, #1f2937 100%);
+  border-color: #303030;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .hero-card .ant-card-body {
+    padding: 32px 24px;
+  }
+  
+  .hero-title {
+    font-size: 36px;
+  }
+  
+  .hero-subtitle {
+    font-size: 16px;
+  }
+  
+  .hero-content {
+    padding-right: 0;
+    margin-bottom: 32px;
+  }
+  
+  .hero-stats {
+    padding-left: 0;
+  }
+  
+  .hero-actions .ant-btn {
+    height: 44px;
+    padding: 0 24px;
+    font-size: 15px;
+  }
+  
+  .quick-start-step {
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+}
