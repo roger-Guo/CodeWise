@@ -58,7 +58,7 @@
 - [ ] 实现Analyze节点（文件分析）
 - [ ] 实现Router节点（智能路由）
 - [ ] 实现Generate节点（答案生成）
-- [ ] 集成deepseek-coder-v2模型
+- [ ] 集成Ollama deepseek-coder-v2模型 ✅
 - [ ] 实现调用链追踪逻辑
 - [ ] 添加循环控制和深度限制
 
@@ -134,9 +134,12 @@
 ### 待安装 🔄
 - **RAG框架**: LlamaIndex
 - **Agent框架**: LangGraph
-- **大语言模型**: deepseek-coder-v2
 - **前端框架**: React 18 + Vite + TypeScript
 - **UI组件库**: Ant Design React
+
+### 已配置 ✅
+- **大语言模型**: deepseek-coder-v2 (通过Ollama本地部署)
+- **Ollama服务**: 已启动并验证API访问正常
 
 ## 📝 每日检查清单
 
