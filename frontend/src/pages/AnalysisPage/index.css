@@ -1,0 +1,184 @@
+.analysis-page {
+  padding: 24px;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+[data-theme='dark'] .analysis-page {
+  background: #0f0f0f;
+}
+
+/* 输入区域 */
+.input-section {
+  height: 100%;
+}
+
+.input-section .ant-card {
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+}
+
+[data-theme='dark'] .input-section .ant-card {
+  border-color: #303030;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 结果区域 */
+.result-section {
+  height: 100%;
+}
+
+.result-section .ant-card {
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+}
+
+[data-theme='dark'] .result-section .ant-card {
+  border-color: #303030;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 布局调整 */
+.analysis-page .ant-row {
+  min-height: calc(100vh - 48px);
+}
+
+.analysis-page .ant-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 响应式适配 */
+@media (max-width: 992px) {
+  .analysis-page {
+    padding: 16px;
+  }
+  
+  .analysis-page .ant-row {
+    min-height: auto;
+  }
+  
+  .input-section,
+  .result-section {
+    margin-bottom: 16px;
+  }
+  
+  .input-section .ant-card,
+  .result-section .ant-card {
+    height: auto;
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .analysis-page {
+    padding: 12px;
+  }
+  
+  .input-section .ant-card,
+  .result-section .ant-card {
+    border-radius: 8px;
+    min-height: 250px;
+  }
+}
+
+/* 加载状态 */
+.analysis-page .ant-spin-container {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 空状态优化 */
+.analysis-page .ant-empty {
+  margin: 40px 0;
+}
+
+/* 卡片悬停效果 */
+.input-section .ant-card:hover,
+.result-section .ant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+[data-theme='dark'] .input-section .ant-card:hover,
+[data-theme='dark'] .result-section .ant-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* 动画效果 */
+.analysis-page .ant-card {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 流式分析进度指示 */
+.streaming-indicator {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+}
+
+.streaming-indicator .ant-progress {
+  margin: 0;
+}
+
+/* 重试按钮样式 */
+.retry-button {
+  margin-top: 16px;
+}
+
+.retry-button .ant-btn {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* 分析类型标签 */
+.analysis-type-tag {
+  margin-bottom: 8px;
+}
+
+/* 错误状态样式 */
+.error-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #ff4d4f;
+}
+
+.error-state .anticon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+/* 成功状态样式 */
+.success-state {
+  border-left: 4px solid #52c41a;
+}
+
+/* 分析时间显示 */
+.analysis-time {
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+}
+
+[data-theme='dark'] .analysis-time {
+  color: #666;
+}
