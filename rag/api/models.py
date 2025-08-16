@@ -45,7 +45,7 @@ class DatabaseStats(BaseModel):
     collection_name: str = Field(..., description="集合名称")
     document_count: int = Field(..., description="文档数量")
     embedding_model: str = Field(..., description="嵌入模型")
-    metadata: Dict[str, Any] = Field(..., description="集合元数据")
+    metadata: Optional[Dict[str, Any]] = Field(default={}, description="集合元数据")
 
 class DocumentRequest(BaseModel):
     """文档请求模型"""

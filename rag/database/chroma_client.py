@@ -148,13 +148,27 @@ class ChromaDBClient:
             
             logger.info(f"搜索查询: '{query[:50]}...' 返回 {len(results['ids'][0])} 个结果")
             
+            # 计算相似度分数（将距离转换为相似度）
+            similarity_scores = []
+            if "distances" in results and results["distances"]:
+                for distance in results["distances"][0]:
+                    # 使用余弦相似度：similarity = 1 - distance
+                    # ChromaDB默认使用L2距离，需要转换为相似度分数
+                    if distance is not None:
+                        # 对于L2距离，相似度 = 1 / (1 + distance)
+                        similarity = 1 / (1 + distance) if distance >= 0 else 1.0
+                        similarity_scores.append(float(similarity))
+                    else:
+                        similarity_scores.append(0.0)
+            
             return {
                 "query": query,
                 "results": {
                     "ids": results["ids"][0] if "ids" in results else [],
                     "documents": results["documents"][0] if "documents" in results else [],
                     "metadatas": results["metadatas"][0] if "metadatas" in results else [],
-                    "distances": results["distances"][0] if "distances" in results else []
+                    "distances": results["distances"][0] if "distances" in results else [],
+                    "similarity_scores": similarity_scores
                 },
                 "total": len(results["ids"][0]) if "ids" in results else 0
             }

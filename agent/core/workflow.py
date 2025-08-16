@@ -4,7 +4,7 @@ LangGraph工作流定义
 import logging
 import asyncio
 from typing import Dict, Any, List, Optional
-from langgraph import StateGraph, END
+from langgraph.graph import StateGraph, END
 from langchain_core.runnables import RunnableConfig
 
 from .state import AgentState, CallChainNode, AnalysisContext
@@ -132,19 +132,30 @@ class CodeAnalysisWorkflow:
             
             # 运行工作流
             final_state = None
+            current_state = initial_state
             async for state in self.app.astream(initial_state):
                 final_state = state
                 
                 # 记录进度
                 current_node = list(state.keys())[-1] if state else "unknown"
                 logger.debug(f"当前节点: {current_node}")
+                
+                # 更新当前状态
+                if state:
+                    current_state = list(state.values())[-1]
             
             if final_state is None:
                 raise Exception("工作流执行失败，未获得最终状态")
             
-            # 获取最终状态的值
-            result_state = list(final_state.values())[-1] if final_state else initial_state
-            result_state.finalize()
+            # 使用最终的状态对象
+            result_state = current_state
+            if hasattr(result_state, 'finalize'):
+                result_state.finalize()
+            else:
+                # 如果result_state是字典，创建AgentState对象
+                if isinstance(result_state, dict):
+                    result_state = AgentState(**result_state)
+                    result_state.finalize()
             
             # 构建结果
             result = {

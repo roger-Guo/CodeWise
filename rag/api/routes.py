@@ -79,9 +79,10 @@ async def search_code(request: SearchRequest):
         raw_results = search_results["results"]
         
         for i in range(len(raw_results["ids"])):
-            # 计算相似度分数（距离转换为相似度）
-            distance = raw_results["distances"][i] if "distances" in raw_results else 0.0
-            similarity_score = max(0.0, 1.0 - distance)  # 距离越小，相似度越高
+            # 使用ChromaDB客户端计算的相似度分数
+            similarity_score = (raw_results["similarity_scores"][i] 
+                              if "similarity_scores" in raw_results and i < len(raw_results["similarity_scores"])
+                              else 0.0)
             
             result = SearchResult(
                 id=raw_results["ids"][i],

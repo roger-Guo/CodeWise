@@ -62,108 +62,130 @@ class CodeKnowledgeGraphLoader:
         """
         searchable_items = []
         
-        # 检查数据结构
-        if "fileMetadata" not in data:
-            logger.warning("JSON数据缺少fileMetadata字段")
+        # 适配新的JSON数据结构
+        file_path = data.get("filePath", "unknown")
+        file_name = data.get("fileName", "unknown")
+        file_type = data.get("fileType", "unknown")
+        
+        if not file_path or file_path == "unknown":
+            logger.warning(f"JSON数据缺少filePath字段: {data.keys()}")
             return searchable_items
         
-        file_metadata = data["fileMetadata"]
-        file_path = file_metadata.get("filePath", "unknown")
+        # 构建文件级别的搜索内容
+        file_content_parts = []
         
-        # 1. 处理完整文件信息（如果是文件级JSON）
-        if "fileDefinitions" in data:
-            # 构建文件级别的搜索内容
-            file_content_parts = []
-            
-            # 添加文件路径
-            file_content_parts.append(f"文件路径: {file_path}")
-            
-            # 添加文件定义摘要
-            definitions = data.get("fileDefinitions", [])
-            if definitions:
-                def_summary = []
-                for defn in definitions:
-                    def_type = defn.get("definitionType", "unknown")
-                    def_name = defn.get("name", "unnamed")
-                    def_summary.append(f"{def_type}: {def_name}")
-                
-                file_content_parts.append(f"定义摘要: {', '.join(def_summary)}")
-            
-            # 添加依赖信息
-            dep_info = data.get("dependencyInfo", {})
-            if dep_info.get("forwardReferences"):
-                forward_refs = [ref.get("source", "") for ref in dep_info["forwardReferences"]]
-                file_content_parts.append(f"依赖模块: {', '.join(forward_refs)}")
-            
-            file_content = "\n".join(file_content_parts)
-            
-            file_metadata_enhanced = {
-                **file_metadata,
-                "content_type": "file_summary",
-                "definition_count": len(definitions),
-                "has_dependencies": bool(dep_info.get("forwardReferences")),
-                "is_exported": bool(dep_info.get("backwardReferences"))
-            }
-            
-            searchable_items.append((file_content, file_metadata_enhanced))
+        # 添加基本文件信息
+        file_content_parts.append(f"文件路径: {file_path}")
+        file_content_parts.append(f"文件名: {file_name}")
+        file_content_parts.append(f"文件类型: {file_type}")
         
-        # 2. 处理单个定义信息（如果是定义级JSON）
-        if "definitionInfo" in data:
-            definition = data["definitionInfo"]
-            
-            # 构建定义级别的搜索内容
-            def_content_parts = []
-            
-            # 基本信息
-            def_name = definition.get("name", "unnamed")
-            def_type = definition.get("definitionType", "unknown")
-            qualified_name = definition.get("qualifiedName", def_name)
-            
-            def_content_parts.append(f"定义名称: {def_name}")
-            def_content_parts.append(f"定义类型: {def_type}")
-            def_content_parts.append(f"完全限定名: {qualified_name}")
-            def_content_parts.append(f"所在文件: {file_path}")
-            
-            # 作用域信息
-            scope_path = definition.get("scopePath")
-            if scope_path:
-                def_content_parts.append(f"作用域: {scope_path}")
-            
-            # 代码块
-            code_block = definition.get("codeBlock")
-            if code_block:
-                def_content_parts.append(f"代码: {code_block}")
-            
-            # 描述
-            description = definition.get("description")
-            if description:
-                def_content_parts.append(f"描述: {description}")
-            
-            def_content = "\n".join(def_content_parts)
-            
-            def_metadata = {
-                **file_metadata,
-                "content_type": "definition",
-                "definition_name": def_name,
-                "definition_type": def_type,
-                "qualified_name": qualified_name,
-                "scope_path": scope_path,
-                "is_top_level": definition.get("isTopLevel", False),
-                "start_line": definition.get("startLine"),
-                "end_line": definition.get("endLine"),
-                "is_exported": definition.get("exportInfo", {}).get("isExported", False)
-            }
-            
-            # 添加依赖信息到元数据
-            dep_info = data.get("dependencyInfo", {})
-            if dep_info:
-                def_metadata.update({
-                    "has_forward_refs": bool(dep_info.get("forwardReferences")),
-                    "has_backward_refs": bool(dep_info.get("backwardReferences")),
-                    "used_imports_count": len(dep_info.get("usedImports", []))
-                })
-            
-            searchable_items.append((def_content, def_metadata))
+        # 添加总行数信息
+        total_lines = data.get("totalLines", 0)
+        if total_lines > 0:
+            file_content_parts.append(f"总行数: {total_lines}")
+        
+        # 处理导入信息
+        imports = data.get("imports", [])
+        if imports:
+            import_modules = []
+            for imp in imports:
+                if isinstance(imp, dict):
+                    module = imp.get("module", imp.get("source", ""))
+                else:
+                    module = str(imp)
+                if module:
+                    import_modules.append(module)
+            if import_modules:
+                file_content_parts.append(f"导入模块: {', '.join(import_modules[:10])}")  # 限制显示前10个
+        
+        # 处理导出信息
+        exports = data.get("exports", [])
+        if exports:
+            export_info = []
+            for exp in exports:
+                if isinstance(exp, dict):
+                    exp_type = exp.get("type", "default")
+                    exp_name = exp.get("name", "")
+                    if exp_name:
+                        export_info.append(f"{exp_type}:{exp_name}")
+                    else:
+                        export_info.append(exp_type)
+            if export_info:
+                file_content_parts.append(f"导出: {', '.join(export_info)}")
+        
+        # 处理组件信息
+        components = data.get("components", [])
+        if components:
+            component_names = []
+            for comp in components:
+                if isinstance(comp, dict):
+                    comp_name = comp.get("name", "")
+                else:
+                    comp_name = str(comp)
+                if comp_name:
+                    component_names.append(comp_name)
+            if component_names:
+                file_content_parts.append(f"组件: {', '.join(component_names[:5])}")  # 限制显示前5个
+        
+        # 处理函数信息
+        functions = data.get("functions", [])
+        if functions:
+            function_names = []
+            for func in functions:
+                if isinstance(func, dict):
+                    func_name = func.get("name", "")
+                else:
+                    func_name = str(func)
+                if func_name:
+                    function_names.append(func_name)
+            if function_names:
+                file_content_parts.append(f"函数: {', '.join(function_names[:5])}")  # 限制显示前5个
+        
+        # 添加部分文件内容（如果内容不太长）
+        content = data.get("content", "")
+        if content:
+            # 只取前500个字符作为内容摘要
+            content_preview = content[:500]
+            if len(content) > 500:
+                content_preview += "..."
+            file_content_parts.append(f"内容摘要: {content_preview}")
+        
+        # 处理依赖信息
+        dependencies = data.get("dependencies", [])
+        if dependencies:
+            dep_names = []
+            for dep in dependencies:
+                if isinstance(dep, dict):
+                    dep_name = dep.get("name", dep.get("module", ""))
+                else:
+                    dep_name = str(dep)
+                if dep_name:
+                    dep_names.append(dep_name)
+            if dep_names:
+                file_content_parts.append(f"依赖: {', '.join(dep_names[:5])}")  # 限制显示前5个
+        
+        file_content = "\n".join(file_content_parts)
+        
+        # 构建元数据
+        metadata = {
+            "filePath": file_path,
+            "fileName": file_name,
+            "fileType": file_type,
+            "totalLines": total_lines,
+            "content_type": "file_analysis",
+            "has_imports": len(imports) > 0,
+            "has_exports": len(exports) > 0,
+            "has_components": len(components) > 0,
+            "has_functions": len(functions) > 0,
+            "has_dependencies": len(dependencies) > 0,
+            "import_count": len(imports),
+            "export_count": len(exports),
+            "component_count": len(components),
+            "function_count": len(functions),
+            "dependency_count": len(dependencies)
+        }
+        
+        searchable_items.append((file_content, metadata))
         
         return searchable_items
     
